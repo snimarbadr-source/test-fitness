@@ -1,96 +1,80 @@
 body{
-  font-family:system-ui;
-  background:#0f172a;
+  font-family: sans-serif;
+  background: radial-gradient(circle,#0b1a3a,#000814);
   color:white;
-  margin:0;
-}
-
-.topbar{
-  background:#020617;
-  padding:15px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-
-.card{
-  padding:20px;
-  max-width:500px;
-  margin:auto;
-}
-
-input{
-  width:100%;
-  padding:12px;
-  margin:8px 0;
-  border-radius:10px;
-  border:none;
-}
-
-.btn{
-  padding:12px 16px;
-  border:none;
-  border-radius:12px;
-  cursor:pointer;
-  background:#334155;
-  color:white;
-}
-
-.btn.primary{
-  background:#22c55e;
-}
-
-#testsList{
-  margin-top:10px;
-}
-
-.testItem{
-  background:#1e293b;
-  padding:10px;
-  margin:6px 0;
-  border-radius:12px;
-  display:flex;
-  justify-content:space-between;
-  cursor:grab;
-}
-
-.dragging{
-  opacity:.5;
-}
-
-/* 🎬 مودال سينمائي */
-.modal{
-  position:fixed;
-  inset:0;
-  display:none;
-  justify-content:center;
-  align-items:center;
-  backdrop-filter:blur(10px);
-  background:rgba(0,0,0,.6);
-}
-
-.modalBox{
-  background:#020617;
-  padding:25px;
-  border-radius:20px;
-  width:300px;
   text-align:center;
 }
 
-.cinematic{
-  animation:cinematic .45s ease;
-  box-shadow:0 0 60px rgba(34,197,94,.7);
+h1{margin-top:10px;}
+
+.controls input{
+  padding:10px;
+  margin:5px;
+  border-radius:8px;
+  border:none;
 }
 
-@keyframes cinematic{
-  from{
-    transform:scale(.7) translateY(40px);
-    opacity:0;
-    filter:blur(8px);
-  }
-  to{
-    transform:scale(1);
-    opacity:1;
-    filter:blur(0);
-  }
+.tests{
+  margin-top:20px;
+}
+
+.test{
+  margin:10px;
+}
+
+button{
+  padding:10px 20px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  background:#1f3b6d;
+  color:white;
+  margin:5px;
+}
+
+button:hover{
+  background:#2e5aa8;
+}
+
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.7);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.hidden{display:none;}
+
+.modalBox{
+  background:#0f1f44;
+  padding:25px;
+  border-radius:15px;
+  width:300px;
+}
+
+/* أنيميشن سينمائي */
+.cinematic{
+  animation: zoomFade .5s ease;
+}
+
+@keyframes zoomFade{
+  from{transform:scale(.5) rotateX(40deg); opacity:0;}
+  to{transform:scale(1); opacity:1;}
+}
+
+#intro{
+  position:fixed;
+  inset:0;
+  background:black;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:30px;
+  animation:introFade 2s forwards;
+}
+
+@keyframes introFade{
+  to{opacity:0; visibility:hidden;}
 }
