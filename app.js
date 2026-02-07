@@ -1,142 +1,117 @@
-// التكوين الأصلي
-const TESTS = [
-  "تمرين الجري", "تمرين الباي دمبل", "تمرين الصدر بار", "تمرين اكتاف", "تمرين الضغط",
-  "تمرين بوكسينق", "تمرين الباي بار", "تمرين الجلوس", "تمرين الصدر دمبل", "تمرين رفع الى اعلى"
+const $=id=>document.getElementById(id);
+
+const TESTS=[
+"ضغط الدم",
+"النظر",
+"السمع",
+"السكر",
+"اللياقة"
 ];
 
-const state = {
-  name: "", testNo: "", nid: "", insurance: "",
-  doctorName: "د. سنمار بدر",
-  tests: TESTS.map(() => 0),
-  uiOrder: [...Array(TESTS.length).keys()]
+let state=JSON.parse(localStorage.data||`{
+"name":"",
+"nid":"",
+"insurance":"none",
+"tests":[0,0,0,0,0]
+}`);
+
+function save(){
+ localStorage.data=JSON.stringify(state);
+}
+
+/* إنشاء الفحوصات */
+const list=$("testsList");
+
+function render(){
+ list.innerHTML="";
+ TESTS.forEach((t,i)=>{
+  const d=document.createElement("div");
+  d.className="testItem";
+  d.draggable=true;
+
+  d.innerHTML=`
+    <span>${t}</span>
+    <input type=number min=0 max=100 value=${state.tests[i]}>
+  `;
+
+  d.querySelector("input").oninput=e=>{
+    state.tests[i]=+e.target.value;
+    save();
+  };
+
+  d.ondragstart=()=>d.classList.add("dragging");
+  d.ondragend=()=>d.classList.remove("dragging");
+
+  list.appendChild(d);
+ });
+}
+render();
+
+/* سحب بدون تغيير التقرير */
+list.ondragover=e=>{
+ e.preventDefault();
+ const drag=document.querySelector(".dragging");
+ const after=[...list.children]
+  .find(el=>e.clientY<=el.offsetTop+el.offsetHeight/2);
+
+ if(after) list.insertBefore(drag,after);
+ else list.appendChild(drag);
 };
 
-const $ = (id) => document.getElementById(id);
-const canvas = $("report");
-const ctx = canvas.getContext("2d");
+/* مودال */
+$("insuranceBtn").onclick=()=>{
+ $("insuranceModal").style.display="flex";
+};
 
-// ---- وظيفة ترتيب الفحوصات (تحديث مباشر) ----
-function mountTests() {
-  const container = $("testsList");
-  container.innerHTML = "";
-  state.uiOrder.forEach((idx, pos) => {
-    const row = document.createElement("div");
-    row.className = "testRow";
-    row.draggable = true;
-    row.innerHTML = `
-      <div class="testTop"><span>☰ ${TESTS[idx]}</span><b class="pct">${state.tests[idx]}%</b></div>
-      <div class="testCtl"><input type="range" min="0" max="100" value="${state.tests[idx]}"></div>
-    `;
-    
-    const rng = row.querySelector("input");
-    rng.oninput = (e) => {
-      state.tests[idx] = parseInt(e.target.value);
-      row.querySelector(".pct").textContent = e.target.value + "%";
-      render(); // تحديث فوري للصورة النهائية
-    };
+$("saveInsurance").onclick=()=>{
+ state.insurance=$("insuranceSelect").value;
+ $("insuranceModal").style.display="none";
+ save();
+};
 
-    // منطق السحب والإفلات
-    row.ondragstart = (e) => { e.dataTransfer.setData("pos", pos); row.classList.add("dragging"); };
-    row.ondragover = (e) => e.preventDefault();
-    row.ondrop = (e) => {
-      const from = e.dataTransfer.getData("pos");
-      const moved = state.uiOrder.splice(from, 1)[0];
-      state.uiOrder.splice(pos, 0, moved);
-      mountTests();
-    };
-    row.ondragend = () => row.classList.remove("dragging");
-    container.appendChild(row);
-  });
+/* نظام تلقائي */
+function autoInsurance(){
+ const avg=state.tests.reduce((a,b)=>a+b,0)/state.tests.length;
+
+ if(avg>=85) return "بلاتيني";
+ if(avg>=60) return "ذهبي";
+ if(avg>=30) return "فضي";
+ return "لا يوجد";
 }
 
-// ---- محرك الرسم الأصلي (التصميم النهائي) ----
-function render() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  
-  // 1. الخلفية
-  ctx.fillStyle = "#ffffff";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+/* نسخ الرسالة */
+$("copyBtn").onclick=()=>{
+ state.name=$("name").value;
+ state.nid=$("nid").value;
 
-  // 2. الهيدر الأسود
-  ctx.fillStyle = "#1a1a1a";
-  ctx.beginPath(); ctx.roundRect(60, 60, 1294, 240, 30); ctx.fill();
-  
-  ctx.fillStyle = "#fff";
-  ctx.font = "900 64px system-ui"; ctx.textAlign = "right";
-  ctx.fillText("مستشفى ريسبكت", 1300, 160);
-  ctx.font = "500 28px system-ui"; ctx.fillStyle = "rgba(255,255,255,0.6)";
-  ctx.fillText("Respect Hospital - Medical Center", 1300, 210);
+ let ins=state.insurance;
+ if(ins==="auto") ins=autoInsurance();
 
-  // 3. رسم الفحوصات (بنفس التنسيق الأصلي للصورة)
-  TESTS.forEach((name, i) => {
-    const val = state.tests[i];
-    const col = i < 5 ? 0 : 1;
-    const row = i % 5;
-    const x = 60 + (col * 664);
-    const y = 380 + (row * 144);
+ let msg=
+"```\n"+
+"الاسم : "+state.name+"\n"+
+"الرقم الوطني : "+state.nid+"\n"+
+"نوع التقرير: فحص لياقه\n";
 
-    ctx.fillStyle = "#f8f9fc";
-    ctx.beginPath(); ctx.roundRect(x, y, 630, 110, 20); ctx.fill();
-    ctx.fillStyle = "#1a1a1a"; ctx.textAlign = "right"; ctx.font = "900 28px system-ui";
-    ctx.fillText(name, x + 580, y + 65);
-    ctx.fillStyle = val === 100 ? "#009e66" : "#667"; ctx.textAlign = "left";
-    ctx.font = "900 32px system-ui";
-    ctx.fillText(val + "%", x + 40, y + 65);
-  });
+ if(ins!=="none" && ins!=="لا يوجد")
+  msg+="نوع التأمين : "+ins+"\n";
 
-  // 4. بيانات الشخص والختم
-  const infoY = 1150;
-  ctx.fillStyle = "#f8f9fc"; ctx.beginPath(); ctx.roundRect(60, infoY, 1294, 300, 30); ctx.fill();
-  ctx.fillStyle = "#1a1a1a"; ctx.textAlign = "right"; ctx.font = "700 28px system-ui";
-  ctx.fillText("الاسـم : " + (state.name || "ــــــــــــــــ"), 1300, infoY + 130);
-  ctx.fillText("الرقم الوطني : " + (state.nid || "ــــــــــــــــ"), 1300, infoY + 200);
+ msg+="```";
 
-  // رسم ختم "لائق" (الأصلي)
-  ctx.save(); ctx.translate(280, infoY + 150); ctx.rotate(-0.1);
-  ctx.strokeStyle = "#009e66"; ctx.lineWidth = 6;
-  ctx.strokeRect(-150, -60, 300, 120);
-  ctx.fillStyle = "#009e66"; ctx.font = "900 48px system-ui"; ctx.textAlign = "center";
-  ctx.fillText("لائــــق", 0, 18); ctx.restore();
+ navigator.clipboard.writeText(msg);
+ alert("تم النسخ ✅");
+ save();
+};
 
-  // الطبيب
-  ctx.fillStyle = "#1a1a1a"; ctx.textAlign = "right"; ctx.font = "900 32px system-ui";
-  ctx.fillText(state.doctorName, 1300, 1650);
+/* Patch Notes مرة واحدة */
+if(!localStorage.patch){
+ setTimeout(()=>{
+  alert(`🚀 تحديثات جديدة
+
+✨ التأمين الصحي
+✨ نظام تلقائي للدرجات
+✨ سحب الفحوصات
+✨ تجربة سينمائية`);
+  localStorage.patch=1;
+ },800);
 }
-
-// ---- إدارة الأزرار والإنترو ----
-function boot() {
-  mountTests();
-  
-  $("skipIntro").onclick = () => { $("intro").style.display = "none"; };
-  $("name").oninput = (e) => { state.name = e.target.value; render(); };
-  $("nid").oninput = (e) => { state.nid = e.target.value; render(); };
-  $("insuranceType").onchange = (e) => { state.insurance = e.target.value; };
-  
-  $("doctorBtn").onclick = () => $("doctorModal").style.display = "grid";
-  $("doctorSave").onclick = () => {
-    state.doctorName = $("doctorNameM").value || state.doctorName;
-    $("doctorModal").style.display = "none";
-    render();
-  };
-
-  // نسخ الرسالة مع التأمين
-  $("copyMsgBtn").onclick = () => {
-    const ins = state.insurance ? `\nنوع التأمين : ${state.insurance}` : "";
-    const text = "```\n" + `الاسم : ${state.name || "سنمار"}\nالرقم الوطني : ${state.nid || "5775"}\nنوع التقرير: فحص لياقه${ins}\n` + "```";
-    navigator.clipboard.writeText(text);
-    $("copyMsgBtn").textContent = "تم النسخ ✅";
-    setTimeout(() => $("copyMsgBtn").textContent = "نسخ الرسالة", 1500);
-  };
-
-  // حفظ الصورة
-  $("copyBtn").onclick = () => {
-    const link = document.createElement('a');
-    link.download = `تقرير_${state.name || 'ليااقة'}.png`;
-    link.href = canvas.toDataURL();
-    link.click();
-  };
-
-  render();
-}
-
-boot();
