@@ -1,226 +1,119 @@
-let gymWatermark = null;
-
-// الترتيب الثابت للتقرير النهائي (لا يتأثر بسحب المستخدم)
+// الترتيب الثابت للتقرير الورقي (لا يتغير أبداً)
 const STATIC_ORDER = [
-  "تمرين الجري",
-  "تمرين الباي دمبل",
-  "تمرين الصدر بار",
-  "تمرين اكتاف",
-  "تمرين الضغط",
-  "تمرين بوكسينق",
-  "تمرين الباي بار",
-  "تمرين الجلوس",
-  "تمرين الصدر دمبل",
-  "تمرين رفع الى اعلى"
+  "تمرين الجري", "تمرين الباي دمبل", "تمرين الصدر بار", "تمرين اكتاف", "تمرين الضغط",
+  "تمرين بوكسينق", "تمرين الباي بار", "تمرين الجلوس", "تمرين الصدر دمبل", "تمرين رفع الى اعلى"
 ];
 
 const state = {
-  name: "",
-  testNo: "",
-  nid: "",
-  insurance: "", // فضي، ذهبي، بلاتيني
-  doctorName: "د. سنمار بدر",
-  doctorExtras: [],
-  doctorPrinted: "",
-  doctorSigMode: "none",
-  doctorSigTyped: "",
-  doctorSigScale: 1.0,
-  doctorSigImage: null,
-  doctorSigDataUrl: null,
-  // تخزين القيم بناءً على اسم التمرين لضمان عدم ضياعها عند تغيير الترتيب
+  name: "", testNo: "", nid: "", insurance: "",
   testValues: STATIC_ORDER.reduce((acc, name) => ({ ...acc, [name]: 0 }), {}),
-  userTestOrder: [...STATIC_ORDER] // الترتيب القابل للتغيير في الواجهة
+  userOrder: [...STATIC_ORDER], // الترتيب اللي يظهر للمستخدم في اللوحة
+  doctorName: "د. سنمار بدر"
 };
 
 const $ = (id) => document.getElementById(id);
 const canvas = $("report");
 const ctx = canvas.getContext("2d");
 
-const inputs = {
-  name: $("name"),
-  testNo: $("testNo"),
-  nid: $("nid"),
-  insurance: $("insuranceSelect"),
-  doctorNameM: $("doctorNameM"),
-  doctorPrintedM: $("doctorPrintedM"),
-  doctorSigModeM: $("doctorSigModeM"),
-  doctorSigTypedM: $("doctorSigTypedM"),
-  testsList: $("testsList")
-};
-
-// ---- Boot & Patch Notes ----
-window.addEventListener("DOMContentLoaded", () => {
-  const intro = $("intro");
-  const patchModal = $("patchModal");
+// ---- نظام الـ Patch Notes ----
+window.addEventListener("load", () => {
+  const skip = $("skipIntro");
+  const patch = $("patchModal");
   
-  function showPatchNotes() {
-    const seen = localStorage.getItem("patch_v8_seen");
-    if (!seen) {
-      patchModal.style.display = "flex";
+  const showPatch = () => {
+    if (!localStorage.getItem("patch_seen_v1")) {
+      patch.style.display = "flex";
     }
-  }
+  };
 
-  $("skipIntro")?.addEventListener("click", () => {
-    intro.style.display = "none";
-    showPatchNotes();
-  });
+  skip.onclick = () => {
+    $("intro").style.display = "none";
+    showPatch();
+  };
 
-  $("closePatch")?.addEventListener("click", () => {
-    patchModal.style.display = "none";
-    localStorage.setItem("patch_v8_seen", "true");
-  });
-
-  setTimeout(() => {
-    if (intro.style.display !== "none") {
-      intro.style.display = "none";
-      showPatchNotes();
-    }
-  }, 4000);
+  $("closePatch").onclick = () => {
+    patch.style.display = "none";
+    localStorage.setItem("patch_seen_v1", "true");
+  };
 });
 
-// ---- Insurance Logic ----
-inputs.insurance.addEventListener("change", (e) => {
-  state.insurance = e.target.value;
-  save();
-});
-
-// ---- Drag & Drop Logic for Tests ----
+// ---- نظام السحب والإفلات وتوليد القائمة ----
 function mountTests() {
-  inputs.testsList.innerHTML = "";
-  state.userTestOrder.forEach((name, index) => {
-    const row = makeTestRow(name);
+  const container = $("testsList");
+  container.innerHTML = "";
+  
+  state.userOrder.forEach((name, index) => {
+    const row = document.createElement("div");
+    row.className = "testRow";
     row.draggable = true;
-    
-    row.addEventListener('dragstart', (e) => {
-      e.dataTransfer.setData('text/plain', index);
-      row.style.opacity = '0.5';
-    });
+    const val = state.testValues[name];
 
-    row.addEventListener('dragover', (e) => e.preventDefault());
+    row.innerHTML = `
+      <div class="testTop">
+        <div class="testName">☰ ${name}</div>
+        <div class="testPct">${val}%</div>
+      </div>
+      <div class="testCtl">
+        <input type="range" min="0" max="100" value="${val}">
+      </div>
+    `;
 
-    row.addEventListener('drop', (e) => {
-      e.preventDefault();
-      const fromIndex = e.dataTransfer.getData('text/plain');
-      const toIndex = index;
-      
-      const movedItem = state.userTestOrder.splice(fromIndex, 1)[0];
-      state.userTestOrder.splice(toIndex, 0, movedItem);
-      
+    // سحب وإفلات
+    row.ondragstart = (e) => e.dataTransfer.setData("index", index);
+    row.ondragover = (e) => e.preventDefault();
+    row.ondrop = (e) => {
+      const from = e.dataTransfer.getData("index");
+      const item = state.userOrder.splice(from, 1)[0];
+      state.userOrder.splice(index, 0, item);
       mountTests();
       save();
-    });
+    };
 
-    row.addEventListener('dragend', () => row.style.opacity = '1');
-    
-    inputs.testsList.appendChild(row);
+    // تغيير القيم
+    row.querySelector("input").oninput = (e) => {
+      state.testValues[name] = e.target.value;
+      row.querySelector(".testPct").textContent = e.target.value + "%";
+      save();
+    };
+
+    container.appendChild(row);
   });
 }
 
-function makeTestRow(name) {
-  const wrap = document.createElement("div");
-  wrap.className = "testRow";
-  const val = state.testValues[name] || 0;
-
-  wrap.innerHTML = `
-    <div class="testTop">
-      <div class="testName">☰ ${name}</div>
-      <div class="testPct">${val}%</div>
-    </div>
-    <div class="testCtl">
-      <input type="range" min="0" max="100" value="${val}">
-      <button class="btn">100%</button>
-    </div>
-  `;
-
-  const range = wrap.querySelector('input');
-  const pctText = wrap.querySelector('.testPct');
-  const btn100 = wrap.querySelector('button');
-
-  range.addEventListener('input', () => {
-    state.testValues[name] = Number(range.value);
-    pctText.textContent = `${range.value}%`;
-    save();
-  });
-
-  btn100.addEventListener('click', () => {
-    state.testValues[name] = 100;
-    range.value = 100;
-    pctText.textContent = "100%";
-    save();
-  });
-
-  return wrap;
-}
-
-// ---- Discord Message Builder ----
-function buildDiscordMessage() {
-  const nm = state.name.trim() || "—";
-  const nid = state.nid.trim() || "—";
-  const ins = state.insurance ? `\nنوع التأمين : ${state.insurance}` : "";
+// ---- نسخ الرسالة المطور ----
+$("copyMsgBtn").onclick = () => {
+  const insText = state.insurance ? `\nنوغ التأمين : ${state.insurance}` : "";
+  const msg = "```\n" +
+              `الاسم : ${state.name || "غير محدد"}\n` +
+              `الرقم الوطني : ${state.nid || "غير محدد"}\n` +
+              `نوع التقرير: فحص لياقه${insText}\n` +
+              "```";
   
-  return "```\n" +
-         "الاسم : " + nm + "\n" +
-         "الرقم الوطني : " + nid + "\n" +
-         "نوع التقرير: فحص لياقه" + ins + "\n" +
-         "```";
-}
+  navigator.clipboard.writeText(msg).then(() => {
+    const btn = $("copyMsgBtn");
+    btn.textContent = "تم النسخ ✅";
+    setTimeout(() => btn.textContent = "نسخ الرسالة", 1500);
+  });
+};
 
-// ---- Canvas Drawing (Simplified for brevity, uses STATIC_ORDER) ----
-function render(t = performance.now()) {
+// ---- الرسم على الكانفاس (التقرير) ----
+function render() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawBg(t); // تأكد من وجود دالة drawBg من الكود الأصلي
-  drawHeader(); 
-
-  // رسم الفحوصات بالترتيب الثابت دائماً
-  const x = 90, y = 370, w = canvas.width - 180, h = 660;
-  // ... (رسم خلفية الفحوصات)
-
-  STATIC_ORDER.forEach((name, i) => {
-    const col = (i < 5) ? 0 : 1;
-    const row = (i < 5) ? i : i - 5;
-    const val = state.testValues[name] || 0;
-    // ارسم النص والنسبة هنا باستخدام إحداثيات col و row
-    // هذا يضمن أن "تمرين الجري" دائماً أول واحد في الورقة مهما رتبه المستخدم في اللوحة
-  });
+  // (هنا تضع دوال الرسم الأصلية drawBg, drawHeader إلخ...)
   
-  drawInfo(t);
-  drawFooter();
+  // رسم الفحوصات حسب STATIC_ORDER لضمان عدم تغير شكل التقرير
+  STATIC_ORDER.forEach((name, i) => {
+    const val = state.testValues[name];
+    // منطق الرسم الخاص بك هنا...
+  });
 }
 
-// ---- Persistence ----
-function save() {
-  localStorage.setItem("fitness_v8_state", JSON.stringify({
-    ...state,
-    doctorSigImage: null // لا نخزن ملفات الصور مباشرة
-  }));
-  render();
-}
+// ربط مدخلات التأمين والبيانات
+$("insurance").onchange = (e) => { state.insurance = e.target.value; save(); };
+$("name").oninput = (e) => { state.name = e.target.value; save(); };
+$("nid").oninput = (e) => { state.nid = e.target.value; save(); };
 
-function restore() {
-  const raw = localStorage.getItem("fitness_v8_state");
-  if (raw) {
-    const p = JSON.parse(raw);
-    Object.assign(state, p);
-  }
-  inputs.name.value = state.name || "";
-  inputs.testNo.value = state.testNo || "";
-  inputs.nid.value = state.nid || "";
-  inputs.insurance.value = state.insurance || "";
-  mountTests();
-  render();
-}
+function save() { render(); }
 
-// باقي دوال الرسم (drawBg, drawHeader, drawInfo, drawFooter) 
-// ودواد التحميل (downloadPNG, copyDiscordMessage) تبقى كما هي في ملفك الأصلي.
-
-async function copyDiscordMessage() {
-  const text = buildDiscordMessage();
-  await navigator.clipboard.writeText(text);
-  const btn = $("copyMsgBtn");
-  btn.textContent = "تم النسخ ✅";
-  setTimeout(() => btn.textContent = "نسخ الرسالة", 1500);
-}
-
-// تشغيل النظام
-restore();
-// استدعى Assets ثم ابدأ الـ Loop كما في كودك الأصلي.
+// تشغيل البداية
+mountTests();
