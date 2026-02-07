@@ -27,6 +27,8 @@ const state = {
   doctorSigImage: null,
   doctorSigDataUrl: null,
   tests: TESTS.map(() => 0),
+  insurance: "none",
+  testsOrder: TESTS.map((_, i) => i),
 };
 
 // ---- DOM ----
@@ -72,6 +74,13 @@ const inputs = {
   doctorSigScaleWrapM: $("doctorSigScaleWrapM"),
   doctorSigScaleM: $("doctorSigScaleM"),
   doctorSigScaleValM: $("doctorSigScaleValM"),
+  insuranceBtn: $("insuranceBtn"),
+  insuranceModal: $("insuranceModal"),
+  insuranceBackdrop: $("insuranceBackdrop"),
+  insuranceClose: $("insuranceClose"),
+  insuranceCancel: $("insuranceCancel"),
+  patchNotesModal: $("patchNotesModal"),
+  closePatchNotes: $("closePatchNotes"),
 };
 
 // Intro
@@ -126,12 +135,32 @@ async function loadAssets(){
 
 // ---- Tests UI ----
 const testsList = $("testsList");
-function makeTestRow(i, name){
+function makeTestRow(i, name, visualIdx){
   const wrap = document.createElement("div");
   wrap.className = "testRow";
 
   const top = document.createElement("div");
   top.className = "testTop";
+
+  // Reorder buttons
+  const orderDiv = document.createElement("div");
+  orderDiv.style.display = "flex";
+  orderDiv.style.flexDirection = "column";
+  
+  const upBtn = document.createElement("button");
+  upBtn.className = "reorderBtn";
+  upBtn.textContent = "▲";
+  upBtn.onclick = () => moveTest(visualIdx, -1);
+  if(visualIdx === 0) upBtn.style.visibility = "hidden";
+
+  const downBtn = document.createElement("button");
+  downBtn.className = "reorderBtn";
+  downBtn.textContent = "▼";
+  downBtn.onclick = () => moveTest(visualIdx, 1);
+  if(visualIdx === state.testsOrder.length - 1) downBtn.style.visibility = "hidden";
+
+  orderDiv.appendChild(upBtn);
+  orderDiv.appendChild(downBtn);
 
   const n = document.createElement("div");
   n.className = "testName";
@@ -142,6 +171,7 @@ function makeTestRow(i, name){
   pct.id = `pct_${i}`;
   pct.textContent = `${state.tests[i]}%`;
 
+  top.appendChild(orderDiv);
   top.appendChild(n);
   top.appendChild(pct);
 
@@ -181,7 +211,19 @@ function makeTestRow(i, name){
 
 function mountTests(){
   testsList.innerHTML = "";
-  TESTS.forEach((t, i) => testsList.appendChild(makeTestRow(i, t)));
+  state.testsOrder.forEach((testIdx, visualIdx) => {
+    testsList.appendChild(makeTestRow(testIdx, TESTS[testIdx], visualIdx));
+  });
+}
+
+function moveTest(visualIdx, dir){
+  const newIdx = visualIdx + dir;
+  if(newIdx < 0 || newIdx >= state.testsOrder.length) return;
+  const temp = state.testsOrder[visualIdx];
+  state.testsOrder[visualIdx] = state.testsOrder[newIdx];
+  state.testsOrder[newIdx] = temp;
+  save();
+  mountTests();
 }
 
 // ---- Doctor Extras UI (max 3) ----
@@ -240,6 +282,8 @@ function save(){
     doctorSigScale: state.doctorSigScale,
     doctorSigDataUrl: state.doctorSigDataUrl,
     tests: state.tests,
+    insurance: state.insurance,
+    testsOrder: state.testsOrder,
   };
   localStorage.setItem("fitness_v7_state", JSON.stringify(payload));
   render(performance.now());
@@ -255,6 +299,8 @@ function restore(){
       if(typeof state.doctorSigScale !== "number") state.doctorSigScale = 1.0;
       if(!Array.isArray(state.doctorExtras)) state.doctorExtras = [];
       state.doctorExtras = state.doctorExtras.slice(0,3);
+      if(typeof p.insurance === "string") state.insurance = p.insurance || "none";
+      if(Array.isArray(p.testsOrder) && p.testsOrder.length === TESTS.length) state.testsOrder = p.testsOrder;
     }catch(e){}
   }
   inputs.name.value = state.name;
@@ -515,10 +561,16 @@ inputs.doctorSigUpload.addEventListener("change", async (e) => {
 function buildDiscordMessage(){
   const nm = (state.name && String(state.name).trim()) ? state.name.trim() : "—";
   const nid = (state.nid && String(state.nid).trim()) ? state.nid.trim() : "—";
+  let insText = "";
+  if(state.insurance === "silver") insText = "\nنوع التأمين : فضي";
+  if(state.insurance === "gold") insText = "\nنوع التأمين : ذهبي";
+  if(state.insurance === "platinum") insText = "\nنوع التأمين : بلاتيني";
+
   return "```\n" +
          "الاسم : " + nm + "\n" +
          "الرقم الوطني : " + nid + "\n" +
-         "نوع التقرير: فحص لياقه\n" +
+         "نوع التقرير: فحص لياقه" +
+         insText + "\n" +
          "```";
 }
 async function copyText(text){
@@ -1462,4 +1514,46 @@ function init(){
 loadAssets().then(() => {
   init();
   startLoop();
+});
+
+
+// ---- Insurance Logic ----
+function openInsurance(){
+  if(!inputs.insuranceModal) return;
+  inputs.insuranceModal.style.display = "";
+  inputs.insuranceModal.setAttribute("aria-hidden","false");
+  
+  // Highlight active
+  document.querySelectorAll(".insBtn").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.val === state.insurance);
+  });
+}
+function closeInsurance(){
+  if(!inputs.insuranceModal) return;
+  inputs.insuranceModal.style.display = "none";
+}
+
+inputs.insuranceBtn?.addEventListener("click", openInsurance);
+inputs.insuranceClose?.addEventListener("click", closeInsurance);
+inputs.insuranceCancel?.addEventListener("click", closeInsurance);
+inputs.insuranceBackdrop?.addEventListener("click", closeInsurance);
+
+document.querySelectorAll(".insBtn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    state.insurance = btn.dataset.val;
+    save();
+    closeInsurance();
+  });
+});
+
+// ---- Patch Notes Logic ----
+if(inputs.patchNotesModal && !localStorage.getItem("seenPatchNotes_v2")){
+    setTimeout(() => {
+        inputs.patchNotesModal.style.display = "grid";
+        inputs.patchNotesModal.setAttribute("aria-hidden", "false");
+    }, 1500);
+}
+inputs.closePatchNotes?.addEventListener("click", () => {
+    localStorage.setItem("seenPatchNotes_v2", "true");
+    inputs.patchNotesModal.style.display = "none";
 });
