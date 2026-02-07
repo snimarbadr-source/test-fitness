@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
-  <!-- Intro -->
   <div id="intro" class="intro" aria-hidden="false">
     <div class="introScene">
       <div class="introRing"></div>
@@ -20,8 +19,30 @@
         </div>
         <div class="introTitle">فحص للياقة</div>
         <div class="introSub">مستشفى ريسبكت</div>
-        <div class="introHint"></div>
         <button id="skipIntro" class="btn btnPrimary">تخطي</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="patchModal" class="modal" style="display:none">
+    <div class="modalBackdrop"></div>
+    <div class="modalCard patchCard">
+      <div class="modalHead">
+        <div class="modalTitle">تحديثات جديدة خرافية 🚀</div>
+      </div>
+      <div class="modalBody">
+        <div class="patchItem">
+          <b>🛡️ نظام التأمين:</b> أضفنا فئات التأمين (فضي، ذهبي، بلاتيني) لتظهر في رسالة النسخ بشكل احترافي.
+        </div>
+        <div class="patchItem">
+          <b>🔄 ترتيب الفحوصات:</b> يمكنك الآن سحب وتغيير ترتيب الفحوصات في القائمة كما تشاء!
+        </div>
+        <div class="patchItem">
+          <b>🎨 تحسينات بصرية:</b> واجهة أكثر سلاسة وتجربة مستخدم مذهلة.
+        </div>
+      </div>
+      <div class="modalFoot">
+        <button id="closePatch" class="btn btnPrimary" style="width:100%">استكشف الآن</button>
       </div>
     </div>
   </div>
@@ -34,12 +55,12 @@
           <div class="h2">مستشفى ريسبكت</div>
         </div>
       </div>
-
       <div class="actions">
         <button id="doctorBtn" class="btn">إضافة الطبيب</button>
+        <button id="insuranceBtn" class="btn">التأمين الصحي</button>
         <button id="copyBtn" class="btn btnPrimary">حفظ للمحفظة</button>
         <button id="copyMsgBtn" class="btn">نسخ الرسالة</button>
-</div>
+      </div>
     </header>
 
     <section class="layout">
@@ -47,150 +68,56 @@
         <div class="previewFrame">
           <canvas id="report" width="1414" height="2000"></canvas>
         </div>
-</div>
+      </div>
 
       <aside class="panel">
         <div class="panelTitle">البيانات</div>
-
         <div class="field">
           <label>الاسم</label>
           <input id="name" type="text" placeholder="اكتب الاسم..." autocomplete="off"/>
         </div>
-
         <div class="field row2">
-          <div>
-            <label>رقم الفحص</label>
-            <input id="testNo" type="text" placeholder="مثال: 300" autocomplete="off"/>
-          </div>
           <div>
             <label>الرقم الوطني</label>
             <input id="nid" type="text" placeholder="مثال: 6650" autocomplete="off"/>
           </div>
-        </div>
-
-        <div class="divider"></div>
-
-        <div class="panelTitle">الطبيب المعالج</div>
-        <button id="doctorPanelBtn" class="btn" type="button" style="width:100%; margin:10px 0 0">تعديل الطبيب</button>
-        <div class="field">
-          <label>اسم الطبيب الأساسي</label>
-          <input id="doctorName" type="text" placeholder="مثال: د. سنمار بدر" autocomplete="off"/>
-        </div>
-
-        <div class="field">
-          <label>إضافة أسماء تحت الطبيب (حد أقصى 3)</label>
-          <div id="doctorExtras" class="extras"></div>
-          <button id="addDoctorExtra" class="btn">+ إضافة طبيب</button>
-        </div>
-
-        <div class="field row2">
           <div>
-            <label>اسم تحت التوقيع</label>
-            <input id="doctorPrinted" type="text" placeholder="اختياري" autocomplete="off"/>
-          </div>
-          <div>
-            <label>توقيع الطبيب</label>
-            <select id="doctorSigMode">
-              <option value="none">بدون توقيع</option>
-              <option value="typed">توقيع نصّي</option>
-              <option value="upload">رفع صورة توقيع</option>
+            <label>نوع التأمين</label>
+            <select id="insuranceType">
+              <option value="none">لا يوجد</option>
+              <option value="فضي">فضي</option>
+              <option value="ذهبي">ذهبي</option>
+              <option value="بلاتيني">بلاتيني</option>
             </select>
           </div>
         </div>
 
-        <div class="field" id="doctorSigTypedWrap">
-          <label>نص التوقيع (Signature)</label>
-          <input id="doctorSigTyped" type="text" placeholder="مثال: Waleed" autocomplete="off"/>
-        </div>
-
-        <div class="field" id="doctorSigUploadWrap" style="display:none">
-          <label>صورة توقيع (سحب وإفلات أو اختيار)</label>
-          <input id="doctorSigUpload" type="file" accept="image/*" style="display:none"/>
-          <div id="doctorDrop" class="dropZone" tabindex="0" role="button" aria-label="سحب وإفلات صورة التوقيع أو اضغط للاختيار">
-            <div class="dropTitle">اسحب وأفلت صورة التوقيع هنا</div>
-            <div class="dropSub">أو اضغط للاختيار من جهازك</div>
-          </div>
-          <div class="dropMeta" id="doctorDropMeta"></div>
-        </div>
         <div class="divider"></div>
-
-        <div class="panelTitle">الفحوصات</div>
+        <div class="panelTitle">الفحوصات (اسحب للترتيب)</div>
         <div id="testsList" class="testsList"></div>
-
+        
         <div class="divider"></div>
-
-        <div class="panelTitle">المسؤول</div>
-        <div class="fixedBox">
-          <div class="fixedRow"><span>توقيع المسؤول:</span><b>بخيت مبخوت</b></div>
-          <div class="fixedRow muted">ثابت (لا يتغير)</div>
-        </div>
+        <div class="panelTitle">الطبيب المعالج</div>
+        <button id="doctorPanelBtn" class="btn" type="button" style="width:100%; margin:10px 0 0">تعديل الطبيب</button>
       </aside>
     </section>
   </main>
 
-
-  <!-- Doctor Modal -->
-  <div id="doctorModal" class="modal" style="display:none" aria-hidden="true">
-    <div class="modalBackdrop" id="doctorBackdrop"></div>
-    <div class="modalCard" role="dialog" aria-modal="true" aria-labelledby="doctorModalTitle">
+  <div id="doctorModal" class="modal" style="display:none">
+    <div id="doctorBackdrop" class="modalBackdrop"></div>
+    <div class="modalCard">
       <div class="modalHead">
-        <div id="doctorModalTitle" class="modalTitle">إعدادات الطبيب المعالج</div>
-        <button id="doctorClose" class="iconBtn" type="button" aria-label="إغلاق">✕</button>
+        <div class="modalTitle">إعدادات الطبيب</div>
+        <button id="doctorClose" class="iconBtn">&times;</button>
       </div>
-
       <div class="modalBody">
         <div class="field">
-          <label>الطبيب المعالج (رئيسي)</label>
-          <input id="doctorNameM" type="text" placeholder="مثال: د. سنمار بدر" autocomplete="off"/>
+          <label>اسم الطبيب</label>
+          <input id="doctorNameM" type="text"/>
         </div>
-
-        <div class="field">
-          <label>إضافة أسماء تحت الطبيب (حد أقصى 3)</label>
-          <div id="doctorExtrasM" class="extras"></div>
-          <button id="addDoctorExtraM" class="btn" type="button">+ إضافة طبيب</button>
         </div>
-
-        <div class="field row2">
-          <div>
-            <label>اسم مطبوع تحت التوقيع</label>
-            <input id="doctorPrintedM" type="text" placeholder="اختياري" autocomplete="off"/>
-          </div>
-          <div>
-            <label>طريقة التوقيع</label>
-            <select id="doctorSigModeM">
-              <option value="none">بدون توقيع</option>
-              <option value="typed">توقيع نصّي</option>
-              <option value="upload">صورة توقيع (جهازك)</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="field" id="doctorSigTypedWrapM" style="display:none">
-          <label>نص التوقيع</label>
-          <input id="doctorSigTypedM" type="text" placeholder="مثال: Waleed" autocomplete="off"/>
-        </div>
-
-        <div class="field" id="doctorSigUploadWrapM" style="display:none">
-          <label>صورة التوقيع (سحب وإفلات أو اختيار)</label>
-          <input id="doctorSigUploadM" type="file" accept="image/*" style="display:none"/>
-          <div id="doctorDropM" class="dropZone" tabindex="0" role="button" aria-label="سحب وإفلات صورة التوقيع أو اضغط للاختيار">
-            <div class="dropTitle">اسحب وأفلت صورة التوقيع هنا</div>
-            <div class="dropSub">أو اضغط للاختيار من جهازك</div>
-          </div>
-          <div class="dropMeta" id="doctorDropMetaM"></div>
-          <div class="field" id="doctorSigScaleWrapM" style="display:none">
-            <label>حجم التوقيع</label>
-            <div class="rangeRow">
-              <input id="doctorSigScaleM" type="range" min="70" max="140" step="5" value="100"/>
-              <div id="doctorSigScaleValM" class="rangeVal">100%</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <div class="modalFoot">
-        <button id="doctorCancel" class="btn" type="button">إلغاء</button>
-        <button id="doctorSave" class="btn btnPrimary" type="button">حفظ</button>
+        <button id="doctorSave" class="btn btnPrimary">حفظ</button>
       </div>
     </div>
   </div>
