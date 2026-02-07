@@ -1,129 +1,81 @@
-let gymWatermark = null;
-
-const STATIC_ORDER = [
-  "تمرين الجري", "تمرين الباي دمبل", "تمرين الصدر بار", "تمرين اكتاف", "تمرين الضغط",
-  "تمرين بوكسينق", "تمرين الباي بار", "تمرين الجلوس", "تمرين الصدر دمبل", "تمرين رفع الى اعلى"
-];
-
-const state = {
-  name: "", testNo: "", nid: "", insurance: "",
-  testValues: STATIC_ORDER.reduce((acc, name) => ({ ...acc, [name]: 0 }), {}),
-  userOrder: [...STATIC_ORDER],
-  doctorName: "د. سنمار بدر",
-  doctorExtras: [],
-  doctorPrinted: "",
-  doctorSigMode: "none",
-  doctorSigTyped: "",
-  doctorSigScale: 1.0,
-  doctorSigImage: null
-};
-
-const $ = (id) => document.getElementById(id);
-const canvas = $("report");
-const ctx = canvas.getContext("2d");
-
-// ---- Boot & Patch Notes ----
-window.addEventListener("DOMContentLoaded", () => {
-    const skip = $("skipIntro");
-    const patch = $("patchModal");
-    
-    skip.onclick = () => {
-        $("intro").style.display = "none";
-        if (!localStorage.getItem("sanmar_patch_seen")) {
-            patch.style.display = "flex";
-        }
-    };
-
-    $("closePatch").onclick = () => {
-        patch.style.display = "none";
-        localStorage.setItem("sanmar_patch_seen", "true");
-    };
-});
-
-// ---- نظام التأمين والرسالة ----
-$("insuranceSelect").onchange = (e) => { state.insurance = e.target.value; save(); };
-
-$("copyMsgBtn").onclick = () => {
-    const ins = state.insurance ? `\nنوغ التأمين : ${state.insurance}` : "";
-    const msg = "```\n" + `الاسم : ${state.name || "سنمار"}\nالرقم الوطني : ${state.nid || "5775"}\nنوع التقرير: فحص لياقه${ins}\n` + "```";
-    navigator.clipboard.writeText(msg);
-    $("copyMsgBtn").textContent = "تم النسخ ✅";
-    setTimeout(() => $("copyMsgBtn").textContent = "نسخ الرسالة", 1500);
-};
-
-// ---- نظام ترتيب الفحوصات ----
-function mountTests() {
-    const container = $("testsList");
-    container.innerHTML = "";
-    state.userOrder.forEach((name, index) => {
-        const row = document.createElement("div");
-        row.className = "testRow";
-        row.draggable = true;
-        const val = state.testValues[name] || 0;
-        row.innerHTML = `<div class="testTop"><span>☰ ${name}</span><b>${val}%</b></div>
-                         <input type="range" min="0" max="100" value="${val}" style="width:100%">`;
-        
-        row.ondragstart = (e) => e.dataTransfer.setData("idx", index);
-        row.ondragover = (e) => e.preventDefault();
-        row.ondrop = (e) => {
-            const from = e.dataTransfer.getData("idx");
-            const item = state.userOrder.splice(from, 1)[0];
-            state.userOrder.splice(index, 0, item);
-            mountTests();
-            save();
-        };
-        row.querySelector("input").oninput = (e) => {
-            state.testValues[name] = e.target.value;
-            row.querySelector("b").textContent = e.target.value + "%";
-            save();
-        };
-        container.appendChild(row);
-    });
+/* حافظ على تنسيقاتك الأصلية وأضف هذه التعديلات */
+:root {
+  --primary: #7c6cff;
+  --bg: #0a0a0c;
+  --panel: #141417;
+  --text: #ffffff;
 }
 
-// ---- دوال الرسم الأصلية (كاملة) ----
-function drawBg(t) {
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    // كود الشبكة والزخرفة الأصلي الخاص بك يوضع هنا
+/* تنسيق قائمة التأمين الجديدة */
+.insurance-select {
+  background: #1a1a1e;
+  color: white;
+  border: 1px solid #333;
+  padding: 8px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.insurance-select:focus {
+  border-color: var(--primary);
 }
 
-function drawHeader() {
-    ctx.fillStyle = "#1a1a1a";
-    ctx.font = "bold 50px Arial";
-    ctx.textAlign = "center";
-    ctx.fillText("تقرير فحص لياقة بدنية", canvas.width/2, 150);
-    // كود رسم الشعارات الأصلي
+/* تنسيق الفحوصات القابلة للسحب */
+.testRow {
+  background: #1c1c21;
+  border: 1px solid #2d2d35;
+  padding: 12px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  cursor: grab;
+  transition: transform 0.2s, background 0.2s;
+}
+.testRow:active {
+  cursor: grabbing;
+  transform: scale(0.98);
+  background: #25252b;
+}
+.testRow.dragging {
+  opacity: 0.5;
+  border: 1px dashed var(--primary);
 }
 
-function drawTests() {
-    // نستخدم STATIC_ORDER لضمان ثبات التقرير
-    STATIC_ORDER.forEach((name, i) => {
-        const val = state.testValues[name] || 0;
-        const x = i < 5 ? 100 : 750;
-        const y = 400 + (i % 5) * 120;
-        
-        // رسم مربع الفحص والنسبة (نفس كودك الأصلي)
-        ctx.fillStyle = "#f9f9f9";
-        ctx.fillRect(x, y, 550, 80);
-        ctx.fillStyle = "#000";
-        ctx.font = "30px Arial";
-        ctx.textAlign = "right";
-        ctx.fillText(name, x + 530, y + 50);
-        ctx.textAlign = "left";
-        ctx.fillText(val + "%", x + 20, y + 50);
-    });
+/* نافذة التحديثات (Patch Notes) */
+.patch-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: none; /* تظهر عبر JS */
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  backdrop-filter: blur(10px);
 }
-
-function render(t) {
-    drawBg(t);
-    drawHeader();
-    drawTests();
-    // drawInfo() و drawFooter()
+.patch-card {
+  background: linear-gradient(145deg, #1e2235, #0f111a);
+  border: 2px solid var(--primary);
+  border-radius: 24px;
+  padding: 40px;
+  max-width: 450px;
+  text-align: center;
+  color: white;
+  box-shadow: 0 0 50px rgba(124, 108, 255, 0.3);
+  animation: patchPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
+@keyframes patchPop {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+.patch-icon { font-size: 50px; margin-bottom: 20px; }
+.patch-list { text-align: right; list-style: none; padding: 0; margin: 25px 0; }
+.patch-list li { margin-bottom: 15px; font-size: 0.95rem; line-height: 1.6; }
+.patch-list b { color: var(--primary); }
 
-function save() { render(); }
-
-// البداية
-mountTests();
-setInterval(() => render(performance.now()), 16);
+/* تحسينات عامة للهيدر واللوحة */
+.topbar { display: flex; justify-content: space-between; align-items: center; padding: 20px; background: var(--panel); border-bottom: 1px solid #222; }
+.actions { display: flex; gap: 10px; align-items: center; }
+.btn { padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; transition: 0.2s; }
+.btnPrimary { background: var(--primary); color: white; }
+.btnPrimary:hover { opacity: 0.9; transform: translateY(-1px); }
