@@ -6,19 +6,15 @@
   <title>فحص للياقة — مستشفى ريسبكت</title>
   <link rel="stylesheet" href="styles.css"/>
   <style>
-    /* تنسيق خاص لترتيب الفحوصات والتأمين */
-    .insurance-selector { background: #1a1a1a; border: 1px solid #333; color: white; padding: 5px 10px; border-radius: 8px; cursor: pointer; }
-    .testRow { cursor: grab; transition: all 0.2s ease; }
-    .testRow:active { cursor: grabbing; transform: scale(0.98); }
-    /* Patch Notes Style */
+    /* تنسيق الباتش نوت الخورافي */
     .patch-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 10000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(15px); }
-    .patch-card { background: linear-gradient(145deg, #1e2235, #0f111a); border: 2px solid #7c6cff; border-radius: 24px; padding: 40px; max-width: 450px; text-align: center; box-shadow: 0 0 60px rgba(124,108,255,0.3); animation: patchPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .patch-card { background: linear-gradient(145deg, #1e2235, #0f111a); border: 2px solid #7c6cff; border-radius: 24px; padding: 40px; max-width: 450px; text-align: center; box-shadow: 0 0 60px rgba(124,108,255,0.3); animation: patchPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); color: white; }
     @keyframes patchPop { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
-    .patch-icon { font-size: 50px; margin-bottom: 20px; }
-    .patch-card h2 { color: #fff; margin-bottom: 15px; font-size: 24px; }
-    .patch-card ul { text-align: right; color: #b0b8d1; list-style: none; padding: 0; margin-bottom: 30px; }
-    .patch-card li { margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
-    .patch-card li::before { content: "✦"; color: #7c6cff; }
+    .patch-list { text-align: right; list-style: none; padding: 0; margin: 20px 0; }
+    .patch-list li { margin-bottom: 12px; font-size: 15px; }
+    .patch-list b { color: #7c6cff; }
+    .testRow { cursor: grab; background: #1a1a1a; padding: 10px; border-radius: 8px; margin-bottom: 8px; border: 1px solid #333; }
+    .testRow:active { cursor: grabbing; }
   </style>
 </head>
 <body>
@@ -36,27 +32,24 @@
 
   <div id="patchModal" class="patch-overlay">
     <div class="patch-card">
-      <div class="patch-icon">🚀</div>
-      <h2>تحديثات النسخة الجديدة</h2>
-      <ul>
-        <li><b>نظام التأمين:</b> أضف (فضي، ذهبي، بلاتيني) بضغطة زر.</li>
-        <li><b>إعادة الترتيب:</b> اسحب الفحوصات لترتيبها في اللوحة.</li>
-        <li><b>الرسائل الذكية:</b> يتم تضمين نوع التأمين تلقائياً في النسخ.</li>
+      <div class="patch-icon" style="font-size: 50px;">🚀</div>
+      <h2 style="margin-top:10px">تحديثات سنمار الخورافية</h2>
+      <ul class="patch-list">
+        <li>🛡️ <b>نظام التأمين:</b> اختر فئة التأمين لتظهر تلقائياً في الرسالة.</li>
+        <li>↕️ <b>ترتيب مرن:</b> اسحب الفحوصات لترتيبها في اللوحة كما تحب.</li>
+        <li>✅ <b>دقة التقرير:</b> التقرير النهائي يظل ثابتاً وبنفس الترتيب الرسمي.</li>
       </ul>
-      <button id="closePatch" class="btn btnPrimary" style="width:100%">فهمت، انطلق! 🔥</button>
+      <button id="closePatch" class="btn btnPrimary" style="width:100%">انطلق الآن 🔥</button>
     </div>
   </div>
 
   <main class="shell">
     <header class="topbar">
       <div class="brand">
-        <div class="brandText">
-          <div class="h1">فحص للياقة</div>
-          <div class="h2">مستشفى ريسبكت</div>
-        </div>
+        <div class="brandText"><div class="h1">فحص للياقة</div><div class="h2">مستشفى ريسبكت</div></div>
       </div>
       <div class="actions">
-        <select id="insurance" class="insurance-selector">
+        <select id="insuranceSelect" class="btn" style="background: #111; color: #fff;">
           <option value="">تأمين صحي: لا يوجد</option>
           <option value="فضي">تأمين: فضي</option>
           <option value="ذهبي">تأمين: ذهبي</option>
@@ -74,10 +67,10 @@
       </div>
       <aside class="panel">
         <div class="panelTitle">البيانات</div>
-        <div class="field"><label>الاسم</label><input id="name" type="text" placeholder="سنمار..." autocomplete="off"/></div>
+        <div class="field"><label>الاسم</label><input id="name" type="text" placeholder="سنمار..."/></div>
         <div class="field row2">
-          <div><label>رقم الفحص</label><input id="testNo" type="text" placeholder="300" /></div>
-          <div><label>الرقم الوطني</label><input id="nid" type="text" placeholder="5775" /></div>
+          <div><label>رقم الفحص</label><input id="testNo" type="text" placeholder="300"/></div>
+          <div><label>الرقم الوطني</label><input id="nid" type="text" placeholder="5775"/></div>
         </div>
         <div class="divider"></div>
         <div class="panelTitle">الفحوصات (اسحب للترتيب)</div>
@@ -85,6 +78,9 @@
       </aside>
     </section>
   </main>
+
+  <div id="doctorModal" class="modal" style="display:none">
+     </div>
 
   <script src="app.js"></script>
 </body>
