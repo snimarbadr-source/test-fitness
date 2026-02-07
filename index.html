@@ -6,31 +6,27 @@
   <title>فحص للياقة — مستشفى ريسبكت</title>
   <link rel="stylesheet" href="styles.css"/>
   <style>
-    /* تحسينات بسيطة للتأمين والترتيب */
-    .insurance-group { display: flex; gap: 5px; margin-top: 5px; }
-    .insurance-btn { flex: 1; font-size: 12px; padding: 5px; border: 1px solid #333; cursor: pointer; background: #1a1a1a; color: #fff; border-radius: 4px; }
-    .insurance-btn.active { background: #7c6cff; border-color: #eef1ff; }
-    .testRow { cursor: grab; transition: transform 0.2s; }
-    .testRow:active { cursor: grabbing; }
+    /* تنسيق خاص لترتيب الفحوصات والتأمين */
+    .insurance-selector { background: #1a1a1a; border: 1px solid #333; color: white; padding: 5px 10px; border-radius: 8px; cursor: pointer; }
+    .testRow { cursor: grab; transition: all 0.2s ease; }
+    .testRow:active { cursor: grabbing; transform: scale(0.98); }
     /* Patch Notes Style */
-    .patch-modal { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); }
-    .patch-card { background: linear-gradient(135deg, #1a1f35 0%, #0a0d1a 100%); border: 2px solid #7c6cff; padding: 30px; border-radius: 20px; max-width: 500px; text-align: center; box-shadow: 0 0 50px rgba(124,108,255,0.4); }
-    .patch-title { font-size: 28px; font-weight: 900; color: #fff; margin-bottom: 15px; }
-    .patch-list { text-align: right; color: #ccd6f6; margin-bottom: 25px; line-height: 1.8; }
-    .patch-list b { color: #25f2a2; }
+    .patch-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 10000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(15px); }
+    .patch-card { background: linear-gradient(145deg, #1e2235, #0f111a); border: 2px solid #7c6cff; border-radius: 24px; padding: 40px; max-width: 450px; text-align: center; box-shadow: 0 0 60px rgba(124,108,255,0.3); animation: patchPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    @keyframes patchPop { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
+    .patch-icon { font-size: 50px; margin-bottom: 20px; }
+    .patch-card h2 { color: #fff; margin-bottom: 15px; font-size: 24px; }
+    .patch-card ul { text-align: right; color: #b0b8d1; list-style: none; padding: 0; margin-bottom: 30px; }
+    .patch-card li { margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+    .patch-card li::before { content: "✦"; color: #7c6cff; }
   </style>
 </head>
 <body>
   <div id="intro" class="intro" aria-hidden="false">
     <div class="introScene">
-      <div class="introRing"></div>
-      <div class="introGlow"></div>
+      <div class="introRing"></div><div class="introGlow"></div>
       <div class="introCard">
-        <div class="introIcon" aria-hidden="true">
-          <div class="barbell">
-            <span class="plate"></span><span class="rod"></span><span class="plate"></span>
-          </div>
-        </div>
+        <div class="introIcon"><div class="barbell"><span class="plate"></span><span class="rod"></span><span class="plate"></span></div></div>
         <div class="introTitle">فحص للياقة</div>
         <div class="introSub">مستشفى ريسبكت</div>
         <button id="skipIntro" class="btn btnPrimary">تخطي</button>
@@ -38,16 +34,16 @@
     </div>
   </div>
 
-  <div id="patchModal" class="patch-modal" style="display:none">
+  <div id="patchModal" class="patch-overlay">
     <div class="patch-card">
-      <div class="patch-title">✨ تحديثات خورافية جديدة!</div>
-      <div class="patch-list">
-        * 🛡️ <b>نظام تأمين صحي:</b> اختر (فضي، ذهبي، بلاتيني) وسيتم تضمينه في الرسالة تلقائياً.<br>
-        * ↕️ <b>ترتيب مرن:</b> يمكنك الآن سحب وإفلات الفحوصات لترتيبها في اللوحة كما تحب.<br>
-        * 🎨 <b>تحسينات بصرية:</b> لمسات مذهلة على واجهة التقرير وخلفية متحركة.<br>
-        * 🩺 <b>إدارة الأطباء:</b> تحكم كامل في التواقيع والأسماء الإضافية.
-      </div>
-      <button id="closePatch" class="btn btnPrimary" style="width: 100%;">استكشاف التغييرات 🚀</button>
+      <div class="patch-icon">🚀</div>
+      <h2>تحديثات النسخة الجديدة</h2>
+      <ul>
+        <li><b>نظام التأمين:</b> أضف (فضي، ذهبي، بلاتيني) بضغطة زر.</li>
+        <li><b>إعادة الترتيب:</b> اسحب الفحوصات لترتيبها في اللوحة.</li>
+        <li><b>الرسائل الذكية:</b> يتم تضمين نوع التأمين تلقائياً في النسخ.</li>
+      </ul>
+      <button id="closePatch" class="btn btnPrimary" style="width:100%">فهمت، انطلق! 🔥</button>
     </div>
   </div>
 
@@ -60,14 +56,12 @@
         </div>
       </div>
       <div class="actions">
-        <div class="insurance-group" style="margin-left: 10px;">
-          <select id="insuranceSelect" class="btn" style="background: #1a1a1a;">
-            <option value="">لا يوجد تأمين</option>
-            <option value="فضي">تأمين فضي</option>
-            <option value="ذهبي">تأمين ذهبي</option>
-            <option value="بلاتيني">تأمين بلاتيني</option>
-          </select>
-        </div>
+        <select id="insurance" class="insurance-selector">
+          <option value="">تأمين صحي: لا يوجد</option>
+          <option value="فضي">تأمين: فضي</option>
+          <option value="ذهبي">تأمين: ذهبي</option>
+          <option value="بلاتيني">تأمين: بلاتيني</option>
+        </select>
         <button id="doctorBtn" class="btn">إضافة الطبيب</button>
         <button id="copyBtn" class="btn btnPrimary">حفظ للمحفظة</button>
         <button id="copyMsgBtn" class="btn">نسخ الرسالة</button>
@@ -76,68 +70,21 @@
 
     <section class="layout">
       <div class="preview">
-        <div class="previewFrame">
-          <canvas id="report" width="1414" height="2000"></canvas>
-        </div>
+        <div class="previewFrame"><canvas id="report" width="1414" height="2000"></canvas></div>
       </div>
-
       <aside class="panel">
         <div class="panelTitle">البيانات</div>
-        <div class="field">
-          <label>الاسم</label>
-          <input id="name" type="text" placeholder="اكتب الاسم..." autocomplete="off"/>
-        </div>
+        <div class="field"><label>الاسم</label><input id="name" type="text" placeholder="سنمار..." autocomplete="off"/></div>
         <div class="field row2">
-          <div>
-            <label>رقم الفحص</label>
-            <input id="testNo" type="text" placeholder="مثال: 300" autocomplete="off"/>
-          </div>
-          <div>
-            <label>الرقم الوطني</label>
-            <input id="nid" type="text" placeholder="مثال: 6650" autocomplete="off"/>
-          </div>
+          <div><label>رقم الفحص</label><input id="testNo" type="text" placeholder="300" /></div>
+          <div><label>الرقم الوطني</label><input id="nid" type="text" placeholder="5775" /></div>
         </div>
         <div class="divider"></div>
         <div class="panelTitle">الفحوصات (اسحب للترتيب)</div>
         <div id="testsList" class="testsList"></div>
-        <div class="divider"></div>
-        <div class="panelTitle">الطبيب المعالج</div>
-        <button id="doctorPanelBtn" class="btn" type="button" style="width:100%; margin:10px 0 0">تعديل الطبيب</button>
       </aside>
     </section>
   </main>
-
-  <div id="doctorModal" class="modal" style="display:none" aria-hidden="true">
-    <div class="modalBackdrop" id="doctorBackdrop"></div>
-    <div class="modalCard">
-      <div class="modalHead">
-        <div class="modalTitle">إعدادات الطبيب المعالج</div>
-        <button id="doctorClose" class="iconBtn">✕</button>
-      </div>
-      <div class="modalBody">
-          <div class="field">
-            <label>اسم الطبيب</label>
-            <input id="doctorNameM" type="text" />
-          </div>
-          <div class="field">
-            <label>اسم مطبوع تحت التوقيع</label>
-            <input id="doctorPrintedM" type="text" />
-          </div>
-          <div class="field">
-            <label>طريقة التوقيع</label>
-            <select id="doctorSigModeM">
-              <option value="none">بدون</option>
-              <option value="typed">نصي</option>
-              <option value="upload">صورة</option>
-            </select>
-          </div>
-          <input id="doctorSigTypedM" type="text" placeholder="التوقيع النصي..." class="field" style="margin-top:10px"/>
-      </div>
-      <div class="modalFoot">
-        <button id="doctorSave" class="btn btnPrimary">حفظ التغييرات</button>
-      </div>
-    </div>
-  </div>
 
   <script src="app.js"></script>
 </body>
