@@ -5,6 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>فحص للياقة — مستشفى ريسبكت</title>
   <link rel="stylesheet" href="styles.css"/>
+  <style>
+    /* إضافات CSS للباتش نوت والترتيب */
+    .patch-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 10000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(15px); }
+    .patch-card { background: linear-gradient(145deg, #1e2235, #0f111a); border: 2px solid #7c6cff; border-radius: 24px; padding: 40px; max-width: 450px; text-align: center; color: white; box-shadow: 0 0 60px rgba(124,108,255,0.3); animation: patchPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    @keyframes patchPop { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
+    .patch-list { text-align: right; list-style: none; padding: 0; margin: 25px 0; }
+    .patch-list li { margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+    .patch-list li::before { content: "✦"; color: #7c6cff; }
+    .testRow { cursor: grab; background: #1a1a1e; border: 1px solid #2d2d35; padding: 10px; border-radius: 10px; margin-bottom: 8px; transition: 0.2s; }
+    .testRow:active { cursor: grabbing; transform: scale(0.98); }
+    .insurance-select { background: #111; color: white; border: 1px solid #333; padding: 5px 10px; border-radius: 8px; cursor: pointer; font-family: inherit; }
+  </style>
 </head>
 <body>
   <div id="intro" class="intro" aria-hidden="false">
@@ -26,14 +38,14 @@
 
   <div id="patchModal" class="patch-overlay">
     <div class="patch-card">
-      <div class="patch-icon">✨</div>
-      <h2>تحديثات سنمار الجديدة</h2>
+      <div style="font-size: 50px;">🚀</div>
+      <h2 style="margin-top:10px">تحديثات سنمار الخورافية</h2>
       <ul class="patch-list">
-        <li>🛡️ <b>نظام التأمين:</b> اختر (فضي، ذهبي، بلاتيني) وسيتم تضمينه في الرسالة تلقائياً.</li>
-        <li>↕️ <b>ترتيب الفحوصات:</b> يمكنك سحب وإفلات الفحوصات لترتيبها في اللوحة.</li>
-        <li>📋 <b>نسخ ذكي:</b> تحديث تلقائي للرسالة المنسوخة حسب نوع التأمين.</li>
+        <li>🛡️ <b>نظام التأمين:</b> اختر فئة التأمين لتظهر في الرسالة المنسوخة.</li>
+        <li>↕️ <b>ترتيب الفحوصات:</b> اسحب الفحوصات لترتيبها في اللوحة الجانبية.</li>
+        <li>✅ <b>ثبات التقرير:</b> يظل ترتيب التقرير الرسمي ثابتاً في الصورة النهائية.</li>
       </ul>
-      <button id="closePatch" class="btn btnPrimary" style="width: 100%;">استكشاف التغييرات 🚀</button>
+      <button id="closePatch" class="btn btnPrimary" style="width:100%">انطلق الآن 🔥</button>
     </div>
   </div>
 
@@ -45,7 +57,6 @@
           <div class="h2">مستشفى ريسبكت</div>
         </div>
       </div>
-
       <div class="actions">
         <select id="insuranceSelect" class="insurance-select">
           <option value="">تأمين صحي: لا يوجد</option>
@@ -61,30 +72,18 @@
 
     <section class="layout">
       <div class="preview">
-        <div class="previewFrame">
-          <canvas id="report" width="1414" height="2000"></canvas>
-        </div>
+        <div class="previewFrame"><canvas id="report" width="1414" height="2000"></canvas></div>
       </div>
-
       <aside class="panel">
         <div class="panelTitle">البيانات</div>
-        <div class="field">
-          <label>الاسم</label>
-          <input id="name" type="text" placeholder="اكتب الاسم..." autocomplete="off"/>
-        </div>
+        <div class="field"><label>الاسم</label><input id="name" type="text" placeholder="سنمار..."/></div>
         <div class="field row2">
-          <div>
-            <label>رقم الفحص</label>
-            <input id="testNo" type="text" placeholder="300" autocomplete="off"/>
-          </div>
-          <div>
-            <label>الرقم الوطني</label>
-            <input id="nid" type="text" placeholder="5775" autocomplete="off"/>
-          </div>
+          <div><label>رقم الفحص</label><input id="testNo" type="text" placeholder="300"/></div>
+          <div><label>الرقم الوطني</label><input id="nid" type="text" placeholder="5775"/></div>
         </div>
         <div class="divider"></div>
         <div class="panelTitle">الفحوصات (اسحب للترتيب)</div>
-        <div id="testsList" class="tests-container"></div>
+        <div id="testsList" class="testsList"></div>
       </aside>
     </section>
   </main>
@@ -97,10 +96,7 @@
         <button id="doctorClose" class="iconBtn">✕</button>
       </div>
       <div class="modalBody">
-        <div class="field">
-          <label>اسم الطبيب</label>
-          <input id="doctorNameM" type="text" />
-        </div>
+        <div class="field"><label>اسم الطبيب</label><input id="doctorNameM" type="text" /></div>
         <div class="field">
           <label>طريقة التوقيع</label>
           <select id="doctorSigModeM">
@@ -110,9 +106,7 @@
           </select>
         </div>
       </div>
-      <div class="modalFoot">
-        <button id="doctorSave" class="btn btnPrimary">حفظ التغييرات</button>
-      </div>
+      <div class="modalFoot"><button id="doctorSave" class="btn btnPrimary">حفظ التغييرات</button></div>
     </div>
   </div>
 
