@@ -28,69 +28,49 @@ input{
 
 .btn{
   padding:10px 18px;
-  border-radius:12px;
   border:none;
+  border-radius:12px;
   cursor:pointer;
   background:#334155;
   color:white;
 }
 
-.primary{
-  background:#22c55e;
-}
-
-#testsList{
-  margin-top:15px;
-}
+.primary{background:#22c55e}
 
 .testItem{
   background:#1e293b;
   padding:12px;
-  border-radius:12px;
   margin:8px 0;
+  border-radius:12px;
   display:flex;
   justify-content:space-between;
-  cursor:grab;
 }
-
-.dragging{opacity:.5}
 
 /* مودال */
 .modal{
   position:fixed;
   inset:0;
-  display:flex;
+  display:none;
   justify-content:center;
   align-items:center;
   background:rgba(0,0,0,.7);
   backdrop-filter:blur(6px);
 }
 
-.hidden{display:none;}
-
 .modalBox{
   background:#020617;
-  padding:25px;
+  padding:30px;
   border-radius:18px;
-  width:300px;
   text-align:center;
 }
 
 /* سينمائي */
 .cinematic{
-  animation:cinematicIn .45s ease;
+  animation:cinematic .5s ease;
   box-shadow:0 0 60px rgba(34,197,94,.7);
 }
 
-@keyframes cinematicIn{
-  from{
-    transform:scale(.7) translateY(40px);
-    opacity:0;
-    filter:blur(6px);
-  }
-  to{
-    transform:scale(1);
-    opacity:1;
-    filter:blur(0);
-  }
+@keyframes cinematic{
+  from{transform:scale(.7) translateY(40px);opacity:0;filter:blur(6px)}
+  to{transform:scale(1);opacity:1;filter:blur(0)}
 }
