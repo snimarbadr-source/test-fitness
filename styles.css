@@ -1,62 +1,53 @@
-/* تحسينات التصميم الخرافي */
-.modern-ui {
-    --primary: #7c6cff;
-    --secondary: #25f2a2;
-    background: #070b14 !important;
+/* واجهة تحكم سينمائية */
+.is-modern .panel {
+    background: rgba(10, 16, 32, 0.8);
+    backdrop-filter: blur(20px);
+    border-left: 1px solid rgba(124, 108, 255, 0.2);
+    padding: 20px;
 }
 
-.dragItem {
+.test-item {
     display: flex;
     align-items: center;
-    background: rgba(255, 255, 255, 0.05);
-    margin: 8px 0;
-    padding: 12px;
-    border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    transition: 0.3s;
-    cursor: grab;
-}
-
-.dragItem:hover {
-    background: rgba(124, 108, 255, 0.15);
-    border-color: var(--primary);
-}
-
-.dragItem.dragging {
-    opacity: 0.5;
-    transform: scale(0.95);
-}
-
-.dragHandle {
-    margin-left: 15px;
-    color: var(--primary);
-    font-size: 20px;
-}
-
-.dragInfo {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.dragBadge {
-    background: var(--primary);
-    padding: 4px 10px;
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: bold;
-}
-
-/* حل مشكلة الإنترو بصرياً */
-.intro {
-    transition: opacity 0.5s ease-in-out;
-}
-
-.patchItem {
-    background: rgba(255,255,255,0.05);
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    margin-bottom: 8px;
     padding: 10px;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    font-size: 14px;
-    border-right: 4px solid var(--primary);
+    border-radius: 12px;
+    transition: 0.3s;
+    border: 1px solid transparent;
+}
+
+.test-item:hover {
+    background: rgba(124, 108, 255, 0.1);
+    border-color: var(--violet);
+    transform: translateX(-5px);
+}
+
+.test-item .handle {
+    cursor: grab;
+    color: var(--violet);
+    font-size: 1.2rem;
+}
+
+.test-item input[type="range"] {
+    flex-grow: 1;
+    accent-color: var(--green);
+}
+
+.test-item .val {
+    min-width: 45px;
+    font-weight: bold;
+    color: var(--green);
+}
+
+/* تأثيرات الأزرار */
+.btnPrimary {
+    background: linear-gradient(135deg, var(--violet), var(--violet2));
+    box-shadow: 0 8px 20px rgba(124, 108, 255, 0.3);
+}
+
+.btnPrimary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px rgba(124, 108, 255, 0.5);
 }
