@@ -6,11 +6,14 @@
   <title>فحص للياقة — مستشفى ريسبكت</title>
   <link rel="stylesheet" href="styles.css"/>
   <style>
-    /* تنسيق إضافي بسيط للترتيب والتأمين */
-    .testRow { cursor: grab; transition: transform 0.2s; }
-    .testRow:active { cursor: grabbing; }
-    .insurance-select { background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 0 10px; margin-left: 10px; height: 44px; font-family: inherit; }
-    .patch-modal { position: fixed; inset: 0; z-index: 9999; display: none; place-items: center; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); }
+    /* تحسينات الواجهة */
+    .testRow { cursor: grab; transition: background 0.2s; }
+    .testRow.dragging { opacity: 0.5; background: rgba(124, 108, 255, 0.1); }
+    .insurance-select {
+      background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px; padding: 0 10px; height: 44px; font-family: inherit; cursor: pointer;
+    }
+    .insurance-select option { background: #0a1020; color: white; }
   </style>
 </head>
 <body>
@@ -19,27 +22,13 @@
       <div class="introRing"></div>
       <div class="introGlow"></div>
       <div class="introCard">
-        <div class="introIcon" aria-hidden="true">
-          <div class="barbell">
-            <span class="plate"></span><span class="rod"></span><span class="plate"></span>
-          </div>
+        <div class="introIcon">
+          <div class="barbell"><span class="plate"></span><span class="rod"></span><span class="plate"></span></div>
         </div>
         <div class="introTitle">فحص للياقة</div>
         <div class="introSub">مستشفى ريسبكت</div>
         <button id="skipIntro" class="btn btnPrimary">تخطي</button>
       </div>
-    </div>
-  </div>
-
-  <div id="patchNotes" class="patch-modal">
-    <div style="background: #161b2e; border: 2px solid #7c6cff; border-radius: 24px; padding: 30px; max-width: 400px; text-align: center;">
-      <h2 style="color: #7c6cff;">تحديثات سنمار 🚀</h2>
-      <ul style="text-align: right; color: #aeb7df; line-height: 2;">
-        <li>🛡️ إضافة نظام اختيار التأمين للرسالة.</li>
-        <li>↕️ إمكانية ترتيب الفحوصات بالسحب.</li>
-        <li>✨ الحفاظ على شكل التقرير الأصلي 100%.</li>
-      </ul>
-      <button id="closePatch" class="btn btnPrimary" style="width:100%">فهمت</button>
     </div>
   </div>
 
@@ -69,8 +58,8 @@
         <div class="previewFrame"><canvas id="report" width="1414" height="2000"></canvas></div>
       </div>
       <aside class="panel">
-        <div class="panelTitle">البيانات</div>
-        <div class="field"><label>الاسم</label><input id="name" type="text" placeholder="سنمار..."/></div>
+        <div class="panelTitle">البيانات الأساسية</div>
+        <div class="field"><label>الاسم</label><input id="name" type="text" placeholder="أدخل الاسم..."/></div>
         <div class="field row2">
           <div><label>رقم الفحص</label><input id="testNo" type="text" placeholder="300"/></div>
           <div><label>الرقم الوطني</label><input id="nid" type="text" placeholder="5775"/></div>
@@ -81,22 +70,17 @@
       </aside>
     </section>
   </main>
-  
+
   <div id="doctorModal" class="modal" style="display:none">
-    <div class="modalBackdrop" id="doctorBackdrop"></div>
+    <div class="modalBackdrop" id="doctorCancel"></div>
     <div class="modalCard">
-       <div class="modalHead"><div class="modalTitle">إعدادات الطبيب</div><button id="doctorClose" class="iconBtn">✕</button></div>
+       <div class="modalHead"><div class="modalTitle">إعدادات الطبيب</div></div>
        <div class="modalBody">
-          <div class="field"><label>اسم الطبيب</label><input id="doctorNameM" type="text" /></div>
-          <div class="field"><label>طريقة التوقيع</label>
-            <select id="doctorSigModeM">
-              <option value="none">بدون</option>
-              <option value="typed">نصي</option>
-            </select>
-          </div>
-          <div id="typedSigWrap" style="display:none" class="field"><label>نص التوقيع</label><input id="doctorSigTypedM" type="text" /></div>
+          <div class="field"><label>اسم الطبيب</label><input id="doctorNameM" type="text" value="د. سنمار بدر" /></div>
        </div>
-       <div class="modalFoot"><button id="doctorSave" class="btn btnPrimary">حفظ</button></div>
+       <div class="modalFoot">
+          <button id="doctorSave" class="btn btnPrimary">حفظ وإغلاق</button>
+       </div>
     </div>
   </div>
 
