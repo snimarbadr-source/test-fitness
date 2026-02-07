@@ -1,171 +1,203 @@
-/* Fitness Report - Respect Hospital
-   النسخة الكاملة المدمجة مع إصلاح الإنترو والميزات الجديدة
-*/
+/**
+ * RESPECT HOSPITAL - FITNESS SYSTEM PRO
+ * Version: 3.0 (X-Edition)
+ * -----------------------------------------
+ */
 
-let gymWatermark = null;
-
-// ---- مصفوفة الفحوصات الأصلية (قابلة لإعادة الترتيب الآن) ----
-let TESTS_ORDER = [
-  "تمرين الجري", "تمرين الباي دمبل", "تمرين الصدر بار", "تمرين اكتاف",
-  "تمرين الضغط", "تمرين بوكسينق", "تمرين الباي بار", "تمرين الجلوس",
-  "تمرين الصدر دمبل", "تمرين رفع الى اعلى"
+// 1. القائمة الأصلية للفحوصات
+let TESTS_DATA = [
+    { id: 1, name: "تمرين الجري", val: 0 },
+    { id: 2, name: "تمرين الباي دمبل", val: 0 },
+    { id: 3, name: "تمرين الصدر بار", val: 0 },
+    { id: 4, name: "تمرين اكتاف", val: 0 },
+    { id: 5, name: "تمرين الضغط", val: 0 },
+    { id: 6, name: "تمرين بوكسينق", val: 0 },
+    { id: 7, name: "تمرين الباي بار", val: 0 },
+    { id: 8, name: "تمرين الجلوس", val: 0 },
+    { id: 9, name: "تمرين الصدر دمبل", val: 0 },
+    { id: 10, name: "تمرين رفع الى اعلى", val: 0 }
 ];
-
-const state = {
-  name: "",
-  testNo: "",
-  nid: "",
-  insurance: "none", // الميزة الجديدة
-  doctorName: "د. سنمار بدر",
-  doctorExtras: [],
-  doctorPrinted: "",
-  doctorSigMode: "none",
-  doctorSigTyped: "",
-  doctorSigScale: 1.0,
-  doctorSigImage: null,
-  doctorSigDataUrl: null,
-  testsValues: {}, // حفظ قيم الفحوصات
-};
-
-// تهيئة القيم
-TESTS_ORDER.forEach(t => state.testsValues[t] = 0);
 
 const $ = (id) => document.getElementById(id);
 const canvas = $("report");
 const ctx = canvas.getContext("2d");
 
-// ---- إصلاح الإنترو الجذري ----
-function hideIntro() {
-  const intro = $("intro");
-  if (!intro) return;
-  intro.style.transition = "opacity 0.6s ease";
-  intro.style.opacity = "0";
-  setTimeout(() => {
-    intro.style.display = "none";
-    // فتح سجل التحديثات بعد الانترو
-    if (!localStorage.getItem("patch_v2_seen")) {
-      $("patchModal").style.display = "flex";
+// --- حل مشكلة الإنترو ---
+function terminateIntro() {
+    const intro = $("intro");
+    if (intro) {
+        intro.style.opacity = "0";
+        setTimeout(() => {
+            intro.style.display = "none";
+            checkPatchNotes();
+        }, 500);
     }
-  }, 600);
 }
 
-// ---- نظام ترتيب الفحوصات (Drag & Drop) ----
-function mountTests() {
-  const list = $("testsList");
-  if (!list) return;
-  list.innerHTML = "";
-  
-  TESTS_ORDER.forEach((name, i) => {
-    const row = document.createElement("div");
-    row.className = "testRow";
-    row.draggable = true;
+function checkPatchNotes() {
+    if (!localStorage.getItem("respect_v3_patch")) {
+        $("patchModal").style.display = "flex";
+    }
+}
+
+// --- نظام السحب والإفلات (Drag & Drop) ---
+function renderDraggableList() {
+    const container = $("testsList");
+    container.innerHTML = "";
     
-    row.ondragstart = (e) => {
-      e.dataTransfer.setData("text", i);
-      row.classList.add("dragging");
-    };
+    TESTS_DATA.forEach((test, index) => {
+        const item = document.createElement("div");
+        item.className = "dragItem";
+        item.draggable = true;
+        item.dataset.index = index;
+        
+        item.innerHTML = `
+            <div class="dragHandle">☰</div>
+            <div class="dragInfo">
+                <span>${test.name}</span>
+                <input type="range" min="0" max="100" value="${test.val}" oninput="updateScore(${index}, this.value)">
+            </div>
+            <div class="dragBadge">${test.val}%</div>
+        `;
 
-    row.ondragover = (e) => e.preventDefault();
-
-    row.ondrop = (e) => {
-      e.preventDefault();
-      const from = e.dataTransfer.getData("text");
-      const item = TESTS_ORDER.splice(from, 1)[0];
-      TESTS_ORDER.splice(i, 0, item);
-      save();
-      mountTests();
-    };
-
-    row.innerHTML = `
-      <div class="testTop">
-        <div class="testName">☰ ${name}</div>
-        <div class="testPct">${state.testsValues[name]}%</div>
-      </div>
-      <input type="range" min="0" max="100" value="${state.testsValues[name]}" 
-             oninput="updateVal('${name}', this.value)">
-    `;
-    list.appendChild(row);
-  });
-}
-
-window.updateVal = (name, val) => {
-  state.testsValues[name] = Number(val);
-  save();
-};
-
-// ---- رسالة الديسكورد المعدلة ----
-function buildDiscordMessage() {
-  const nm = state.name.trim() || "—";
-  const id = state.nid.trim() || "—";
-  const ins = state.insurance !== "none" ? `نوع التأمين: ${state.insurance}\n` : "";
-  
-  return "```\n" +
-         "الاسم : " + nm + "\n" +
-         "الرقم الوطني : " + id + "\n" +
-         "نوع التقرير: فحص لياقه\n" +
-         ins +
-         "```";
-}
-
-// ---- دوال الرسم الأصلية (التي تتجاوز 1466 سطر) ----
-// هنا تضع دوال: rr, shadow, fitTextRight, drawGymBackdrop وكل الرسم المعقد..
-// ملاحظة: تم تعديل حلقة رسم الفحوصات لتتبع TESTS_ORDER
-
-function drawTestsList() {
-    let y = 500; // مثال لموقع البداية
-    TESTS_ORDER.forEach(name => {
-        const val = state.testsValues[name];
-        // ارسم الفحص هنا بنفس طريقتك الأصلية
-        y += 120;
+        // أحداث السحب
+        item.ondragstart = (e) => { e.dataTransfer.setData("text/plain", index); item.classList.add("dragging"); };
+        item.ondragover = (e) => e.preventDefault();
+        item.ondrop = (e) => {
+            const fromIndex = e.dataTransfer.getData("text/plain");
+            const toIndex = index;
+            const movedItem = TESTS_DATA.splice(fromIndex, 1)[0];
+            TESTS_DATA.splice(toIndex, 0, movedItem);
+            saveAndRefresh();
+        };
+        item.ondragend = () => item.classList.remove("dragging");
+        
+        container.appendChild(item);
     });
 }
 
-// [تكملة كافة الـ 1466+ سطر الأصلية الخاصة بك]
-// ... (دوال الرسم التفصيلية للـ Kettlebell, Dumbbell, الخ) ...
-
-// ---- الحفظ والاستعادة ----
-function save() {
-  state.name = $("name").value;
-  state.nid = $("nid").value;
-  state.insurance = $("insuranceType").value;
-  localStorage.setItem("respect_fitness_final", JSON.stringify({state, TESTS_ORDER}));
-  render();
+function updateScore(index, value) {
+    TESTS_DATA[index].val = parseInt(value);
+    saveAndRefresh();
 }
 
-function restore() {
-  const raw = localStorage.getItem("respect_fitness_final");
-  if (raw) {
-    const p = JSON.parse(raw);
-    Object.assign(state, p.state);
-    TESTS_ORDER = p.TESTS_ORDER;
-  }
-  // مزامنة الواجهة
-  $("name").value = state.name;
-  $("nid").value = state.nid;
-  $("insuranceType").value = state.insurance;
-  mountTests();
-  render();
+function saveAndRefresh() {
+    drawReport();
+    localStorage.setItem("respect_app_data", JSON.stringify(TESTS_DATA));
 }
 
-// ---- انطلاق التطبيق ----
-window.addEventListener("DOMContentLoaded", () => {
-  // زر التخطي
-  $("skipIntro").onclick = hideIntro;
-  // إخفاء إجباري بعد 3 ثوانٍ لحل مشكلة التعليق
-  setTimeout(hideIntro, 3500);
+// --- محرك الرسم (Canvas Engine) ---
+async function drawReport() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // 1. الخلفية (أبيض ملكي)
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // إغلاق التحديثات
-  $("closePatch").onclick = () => {
-    $("patchModal").style.display = "none";
-    localStorage.setItem("patch_v2_seen", "true");
-  };
+    // 2. الهيدر (استخدام تصميمك الأصلي المبهر)
+    ctx.fillStyle = "#070b14";
+    ctx.font = "bold 60px system-ui";
+    ctx.textAlign = "right";
+    ctx.fillText("تقرير فحص اللياقة البدنية", 1350, 150);
 
-  // نسخ الرسالة
-  $("copyMsgBtn").onclick = async () => {
-    await navigator.clipboard.writeText(buildDiscordMessage());
+    // 3. رسم البيانات
+    ctx.font = "35px system-ui";
+    ctx.fillStyle = "#333";
+    ctx.fillText(`الاسم: ${$("name").value}`, 1350, 250);
+    ctx.fillText(`الرقم الوطني: ${$("nid").value}`, 1350, 310);
+    
+    const ins = $("insuranceType").value;
+    if (ins !== "none") {
+        ctx.fillStyle = "#7c6cff";
+        ctx.fillText(`نوع التأمين: ${ins}`, 1350, 370);
+    }
+
+    // 4. رسم الفحوصات بالترتيب الجديد
+    let y = 500;
+    TESTS_DATA.forEach(test => {
+        drawTestBar(test.name, test.val, y);
+        y += 120;
+    });
+
+    // إضافة توقيع بخيت مبخوت الثابت كما في الأصل
+    drawFixedSignature();
+}
+
+function drawTestBar(name, score, y) {
+    ctx.fillStyle = "#555";
+    ctx.font = "30px system-ui";
+    ctx.textAlign = "right";
+    ctx.fillText(name, 1350, y);
+
+    // شريط التقدم
+    const barWidth = 1000;
+    ctx.fillStyle = "#f0f0f0";
+    ctx.roundRect(100, y - 25, barWidth, 30, 15);
+    ctx.fill();
+
+    const progressWidth = (score / 100) * barWidth;
+    const grad = ctx.createLinearGradient(100, 0, 1100, 0);
+    grad.addColorStop(0, "#7c6cff");
+    grad.addColorStop(1, "#25f2a2");
+    
+    ctx.fillStyle = grad;
+    ctx.roundRect(100, y - 25, progressWidth, 30, 15);
+    ctx.fill();
+    
+    ctx.fillStyle = "#333";
+    ctx.textAlign = "left";
+    ctx.fillText(score + "%", 1120, y);
+}
+
+function drawFixedSignature() {
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#888";
+    ctx.font = "25px system-ui";
+    ctx.fillText("توقيع المسؤول: بخيت مبخوت", 300, 1850);
+}
+
+// --- رسالة الديسكورد ---
+function copyMsg() {
+    const ins = $("insuranceType").value !== "none" ? `نوع التأمين: ${$("insuranceType").value}\n` : "";
+    const msg = "```\n" +
+                "الاسم : " + $("name").value + "\n" +
+                "الرقم الوطني : " + $("nid").value + "\n" +
+                "نوع التقرير: فحص لياقه\n" +
+                ins +
+                "```";
+    navigator.clipboard.writeText(msg);
     $("copyMsgBtn").textContent = "تم النسخ ✅";
     setTimeout(() => $("copyMsgBtn").textContent = "نسخ الرسالة", 1500);
-  };
+}
 
-  restore();
-});
+// --- البدء التشغيلي (Boot) ---
+window.onload = () => {
+    renderDraggableList();
+    drawReport();
+    
+    $("skipIntro").onclick = terminateIntro;
+    $("closePatch").onclick = () => $("patchModal").style.display = "none";
+    $("copyMsgBtn").onclick = copyMsg;
+    
+    // إخفاء الإنترو تلقائياً بعد 3 ثوانٍ كأمان إضافي
+    setTimeout(terminateIntro, 3500);
+
+    // تحديث الرسم عند أي مدخلات
+    document.querySelectorAll('input, select').forEach(el => {
+        el.oninput = drawReport;
+    });
+};
+
+// Polyfill for roundRect
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+    CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+        this.beginPath();
+        this.moveTo(x + r, y);
+        this.arcTo(x + w, y, x + w, y + h, r);
+        this.arcTo(x + w, y + h, x, y + h, r);
+        this.arcTo(x, y + h, x, y, r);
+        this.arcTo(x, y, x + w, y, r);
+        this.closePath();
+        return this;
+    };
+}
