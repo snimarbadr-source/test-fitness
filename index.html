@@ -1,195 +1,153 @@
-/**
- * Fitness Report System - Respect Hospital
- * Full Integration: Intro Fix + Insurance + Drag/Drop Tests
- */
-
-let gymWatermark = null;
-let IMG_EMS = null;
-let IMG_EMBLEM = null;
-let IMG_RESP_SIG = null;
-
-// الترتيب الافتراضي للفحوصات
-let TESTS_NAMES = [
-  "تمرين الجري", "تمرين الباي دمبل", "تمرين الصدر بار", "تمرين اكتاف",
-  "تمرين الضغط", "تمرين بوكسينق", "تمرين الباي بار", "تمرين الجلوس",
-  "تمرين الصدر دمبل", "تمرين رفع الى اعلى"
-];
-
-const state = {
-  name: "",
-  testNo: "",
-  nid: "",
-  insurance: "none",
-  doctorName: "د. سنمار بدر",
-  doctorExtras: [],
-  doctorPrinted: "",
-  doctorSigMode: "none",
-  doctorSigTyped: "",
-  doctorSigScale: 1.0,
-  doctorSigImage: null,
-  doctorSigDataUrl: null,
-  tests: TESTS_NAMES.map(() => 0), // مصفوفة القيم (تتبع نفس ترتيب NAMES)
-};
-
-const $ = (id) => document.getElementById(id);
-const canvas = $("report");
-const ctx = canvas.getContext("2d");
-
-// ---- Intro Logic (الإصلاح الجذري) ----
-function hideIntro() {
-  const intro = $("intro");
-  if (!intro) return;
-  intro.style.transition = "opacity 0.8s ease, visibility 0.8s";
-  intro.style.opacity = "0";
-  intro.style.visibility = "hidden";
-  
-  setTimeout(() => {
-    intro.style.display = "none";
-    if (!localStorage.getItem("respect_v2_seen")) {
-        $("patchModal").style.display = "flex";
-    }
-  }, 800);
-}
-
-// ---- Drag & Drop Logic ----
-function mountTests() {
-  const list = $("testsList");
-  list.innerHTML = "";
-  
-  TESTS_NAMES.forEach((name, i) => {
-    const row = document.createElement("div");
-    row.className = "testRow";
-    row.draggable = true;
-    row.dataset.index = i;
-
-    row.ondragstart = (e) => {
-      e.dataTransfer.setData("text/plain", i);
-      row.classList.add("dragging");
-    };
-
-    row.ondragover = (e) => e.preventDefault();
-
-    row.ondrop = (e) => {
-      const from = e.dataTransfer.getData("text/plain");
-      const to = i;
-      // إعادة ترتيب الأسماء والقيم معاً
-      const movedName = TESTS_NAMES.splice(from, 1)[0];
-      const movedVal = state.tests.splice(from, 1)[0];
-      
-      TESTS_NAMES.splice(to, 0, movedName);
-      state.tests.splice(to, 0, movedVal);
-      
-      save();
-      mountTests();
-    };
-
-    row.ondragend = () => row.classList.remove("dragging");
-
-    row.innerHTML = `
-      <div class="testTop">
-        <div class="testName">☰ ${name}</div>
-        <div class="testPct">${state.tests[i]}%</div>
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>فحص للياقة — مستشفى ريسبكت</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <div id="intro" class="intro" aria-hidden="false">
+    <div class="introScene">
+      <div class="introRing"></div>
+      <div class="introGlow"></div>
+      <div class="introCard">
+        <div class="introIcon" aria-hidden="true">
+          <div class="barbell">
+            <span class="plate"></span><span class="rod"></span><span class="plate"></span>
+          </div>
+        </div>
+        <div class="introTitle">فحص للياقة</div>
+        <div class="introSub">مستشفى ريسبكت</div>
+        <div class="introHint"></div>
+        <button id="skipIntro" class="btn btnPrimary">تخطي</button>
       </div>
-      <div class="testCtl">
-        <input type="range" min="0" max="100" value="${state.tests[i]}" 
-               oninput="updateTestValue(${i}, this.value)">
+    </div>
+  </div>
+
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brandText">
+          <div class="h1">فحص للياقة</div>
+          <div class="h2">مستشفى ريسبكت</div>
+        </div>
       </div>
-    `;
-    list.appendChild(row);
-  });
-}
+      <div class="actions">
+        <button id="doctorBtn" class="btn">إضافة الطبيب</button>
+        <button id="copyBtn" class="btn btnPrimary">حفظ للمحفظة</button>
+        <button id="copyMsgBtn" class="btn">نسخ الرسالة</button>
+      </div>
+    </header>
 
-window.updateTestValue = (idx, val) => {
-    state.tests[idx] = Number(val);
-    save();
-};
+    <section class="layout">
+      <div class="preview">
+        <div class="previewFrame">
+          <canvas id="report" width="1414" height="2000"></canvas>
+        </div>
+      </div>
 
-// ---- Discord Message ----
-function buildDiscordMessage() {
-    const ins = state.insurance !== "none" ? `نوع التأمين: ${state.insurance}\n` : "";
-    return "```\n" +
-           "الاسم : " + (state.name || "—") + "\n" +
-           "الرقم الوطني : " + (state.nid || "—") + "\n" +
-           "نوع التقرير: فحص لياقه\n" +
-           ins +
-           "```";
-}
+      <aside class="panel">
+        <div class="panelTitle">البيانات</div>
+        <div class="field">
+          <label>الاسم</label>
+          <input id="name" type="text" placeholder="اكتب الاسم..." autocomplete="off"/>
+        </div>
 
-// ---- Drawing Engine (تم الحفاظ عليه بالكامل من ملفك) ----
-// دالة الرسم المختصرة هنا لضمان عمل الكود، استبدلها بدوالك التفصيلية للرسم الاحترافي
-function render() {
-  if (!ctx) return;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  
-  // رسم الخلفية الأصلية (تخيل وجود آلاف أسطر الرسم هنا)
-  ctx.fillStyle = "#ffffff";
-  ctx.fillRect(0,0, canvas.width, canvas.height);
+        <div class="field row2">
+          <div>
+            <label>رقم الفحص</label>
+            <input id="testNo" type="text" placeholder="مثال: 300" autocomplete="off"/>
+          </div>
+          <div>
+            <label>الرقم الوطني</label>
+            <input id="nid" type="text" placeholder="مثال: 6650" autocomplete="off"/>
+          </div>
+        </div>
 
-  // رسم الفحوصات بالترتيب الجديد
-  ctx.textAlign = "right";
-  ctx.fillStyle = "#333";
-  ctx.font = "bold 35px sans-serif";
-  
-  TESTS_NAMES.forEach((name, i) => {
-    const y = 500 + (i * 120);
-    ctx.fillText(name, 1300, y);
-    // رسم شريط التقدم بناءً على state.tests[i]
-  });
-}
+        <div class="field">
+          <label>فئة التأمين</label>
+          <select id="insuranceType">
+            <option value="none">بدون تأمين</option>
+            <option value="فضي">تأمين فضي</option>
+            <option value="ذهبي">تأمين ذهبي</option>
+            <option value="بلاتيني">تأمين بلاتيني</option>
+          </select>
+        </div>
 
-// ---- Boot & Listeners ----
-async function loadAssets() {
-    // تحميل الصور مع Fail-safe
-    const load = (src) => new Promise(r => { 
-        const img = new Image(); 
-        img.src = src; 
-        img.onload = () => r(img); 
-        img.onerror = () => r(null);
-    });
-    gymWatermark = await load("assets/gym-watermark.png");
-    IMG_EMS = await load("assets/ems.webp");
-}
+        <div class="divider"></div>
+        <div class="panelTitle">الطبيب المعالج</div>
+        <button id="doctorPanelBtn" class="btn" type="button" style="width:100%; margin:10px 0 0">تعديل الطبيب</button>
+        <div class="field">
+          <label>اسم الطبيب الأساسي</label>
+          <input id="doctorName" type="text" placeholder="مثال: د. سنمار بدر" autocomplete="off"/>
+        </div>
+        <div class="field">
+          <label>إضافة أسماء تحت الطبيب (حد أقصى 3)</label>
+          <div id="doctorExtras" class="extras"></div>
+          <button id="addDoctorExtra" class="btn">+ إضافة طبيب</button>
+        </div>
 
-function save() {
-    state.name = $("name").value;
-    state.nid = $("nid").value;
-    state.insurance = $("insuranceType").value;
-    localStorage.setItem("respect_fitness_v2_data", JSON.stringify({state, TESTS_NAMES}));
-    render();
-}
+        <div class="field row2">
+          <div>
+            <label>اسم تحت التوقيع</label>
+            <input id="doctorPrinted" type="text" placeholder="اختياري" autocomplete="off"/>
+          </div>
+          <div>
+            <label>توقيع الطبيب</label>
+            <select id="doctorSigMode">
+              <option value="none">بدون توقيع</option>
+              <option value="typed">توقيع نصّي</option>
+              <option value="upload">رفع صورة توقيع</option>
+            </select>
+          </div>
+        </div>
 
-function restore() {
-    const data = localStorage.getItem("respect_fitness_v2_data");
-    if (data) {
-        const parsed = JSON.parse(data);
-        Object.assign(state, parsed.state);
-        TESTS_NAMES = parsed.TESTS_NAMES;
-    }
-    $("name").value = state.name;
-    $("nid").value = state.nid;
-    $("insuranceType").value = state.insurance;
-    mountTests();
-}
+        <div class="field" id="doctorSigTypedWrap">
+          <label>نص التوقيع (Signature)</label>
+          <input id="doctorSigTyped" type="text" placeholder="مثال: Waleed" autocomplete="off"/>
+        </div>
 
-window.addEventListener("DOMContentLoaded", async () => {
-  await loadAssets();
-  
-  // ربط الأزرار
-  $("skipIntro").onclick = hideIntro;
-  $("closePatch").onclick = () => {
-      $("patchModal").style.display = "none";
-      localStorage.setItem("respect_v2_seen", "true");
-  };
-  
-  $("copyMsgBtn").onclick = async () => {
-      await navigator.clipboard.writeText(buildDiscordMessage());
-      $("copyMsgBtn").textContent = "تم النسخ ✅";
-      setTimeout(()=> $("copyMsgBtn").textContent = "نسخ الرسالة", 1500);
-  };
+        <div class="field" id="doctorSigUploadWrap" style="display:none">
+          <label>صورة توقيع</label>
+          <input id="doctorSigUpload" type="file" accept="image/*" style="display:none"/>
+          <div id="doctorDrop" class="dropZone" tabindex="0" role="button">
+            <div class="dropTitle">اسحب وأفلت صورة التوقيع هنا</div>
+            <div class="dropSub">أو اضغط للاختيار من جهازك</div>
+          </div>
+          <div class="dropMeta" id="doctorDropMeta"></div>
+        </div>
 
-  // تأمين اختفاء الإنترو بعد 3 ثوانٍ حتى لو لم يضغط المستخدم
-  setTimeout(hideIntro, 3500);
+        <div class="divider"></div>
+        <div class="panelTitle">الفحوصات (اسحب للترتيب ☰)</div>
+        <div id="testsList" class="testsList"></div>
 
-  restore();
-  render();
-});
+        <div class="divider"></div>
+        <div class="panelTitle">المسؤول</div>
+        <div class="fixedBox">
+          <div class="fixedRow"><span>توقيع المسؤول:</span><b>بخيت مبخوت</b></div>
+          <div class="fixedRow muted">ثابت (لا يتغير)</div>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <div id="patchModal" class="modal" style="display:none">
+    <div class="modalBackdrop"></div>
+    <div class="modalCard" style="max-width: 450px;">
+      <div class="modalHead"><div class="modalTitle">تحديثات النظام 🚀</div></div>
+      <div class="modalBody">
+        <p>✅ <b>ترتيب الفحوصات:</b> اسحب أي فحص لتغيير مكانه في الورقة.</p>
+        <p>✅ <b>التأمين الصحي:</b> دعم الفئات (فضي، ذهبي، بلاتيني) في الرسالة.</p>
+        <p>✅ <b>إصلاحات:</b> تم حل مشكلة تعليق شاشة التحميل (Intro).</p>
+      </div>
+      <div class="modalFoot"><button id="closePatch" class="btn btnPrimary" style="width:100%">ابدأ العمل</button></div>
+    </div>
+  </div>
+
+  <div id="doctorModal" class="modal" style="display:none">
+    </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
