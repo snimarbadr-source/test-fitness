@@ -1,89 +1,226 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>فحص للياقة — مستشفى ريسبكت</title>
-  <link rel="stylesheet" href="styles.css"/>
-  <style>
-    /* تحسينات الواجهة */
-    .testRow { cursor: grab; transition: background 0.2s; }
-    .testRow.dragging { opacity: 0.5; background: rgba(124, 108, 255, 0.1); }
-    .insurance-select {
-      background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 12px; padding: 0 10px; height: 44px; font-family: inherit; cursor: pointer;
-    }
-    .insurance-select option { background: #0a1020; color: white; }
-  </style>
+<meta charset="UTF-8">
+<title>نظام الفحص</title>
+
+<style>
+body{
+  font-family: system-ui;
+  background:#0f172a;
+  color:white;
+  text-align:center;
+  padding:30px;
+}
+
+input,button,select{
+  padding:12px;
+  margin:6px;
+  font-size:16px;
+  border-radius:10px;
+  border:none;
+}
+
+button{
+  cursor:pointer;
+  background:#22c55e;
+  color:white;
+}
+
+#testsList{
+  width:300px;
+  margin:auto;
+}
+
+.testItem{
+  background:#1e293b;
+  padding:10px;
+  margin:6px;
+  border-radius:10px;
+  display:flex;
+  justify-content:space-between;
+  cursor:grab;
+}
+
+.dragging{
+  opacity:.5;
+}
+
+/* 🎬 سينمائي */
+.modal{
+  position:fixed;
+  inset:0;
+  display:none;
+  justify-content:center;
+  align-items:center;
+  backdrop-filter:blur(10px);
+  background:rgba(0,0,0,.6);
+  animation:fadeIn .4s;
+}
+
+.modalCard{
+  background:#020617;
+  padding:25px;
+  border-radius:20px;
+  width:320px;
+  box-shadow:0 0 40px #22c55e;
+  transform:scale(.7);
+  opacity:0;
+  animation:zoomIn .4s forwards;
+}
+
+@keyframes zoomIn{
+  to{transform:scale(1);opacity:1;}
+}
+@keyframes fadeIn{
+  from{opacity:0}
+  to{opacity:1}
+}
+</style>
 </head>
+
 <body>
-  <div id="intro" class="intro" aria-hidden="false">
-    <div class="introScene">
-      <div class="introRing"></div>
-      <div class="introGlow"></div>
-      <div class="introCard">
-        <div class="introIcon">
-          <div class="barbell"><span class="plate"></span><span class="rod"></span><span class="plate"></span></div>
-        </div>
-        <div class="introTitle">فحص للياقة</div>
-        <div class="introSub">مستشفى ريسبكت</div>
-        <button id="skipIntro" class="btn btnPrimary">تخطي</button>
-      </div>
-    </div>
+
+<h2>نظام الفحص</h2>
+
+<input id="name" placeholder="الاسم"><br>
+<input id="nid" placeholder="الرقم الوطني"><br>
+
+<button id="insuranceBtn">تأمين صحي</button>
+<button onclick="copyMsg()">نسخ الرسالة</button>
+
+<h3>الفحوصات</h3>
+<div id="testsList"></div>
+
+<!-- 🎬 مودال سينمائي -->
+<div id="modal" class="modal">
+  <div class="modalCard">
+    <h3>التأمين الصحي</h3>
+
+    <select id="insSel">
+      <option value="none">لا يوجد</option>
+      <option value="فضي">فضي</option>
+      <option value="ذهبي">ذهبي</option>
+      <option value="بلاتيني">بلاتيني</option>
+      <option value="auto">تلقائي حسب الدرجات</option>
+    </select>
+
+    <br><br>
+    <button onclick="saveIns()">حفظ</button>
   </div>
+</div>
 
-  <main class="shell">
-    <header class="topbar">
-      <div class="brand">
-        <div class="brandText">
-          <div class="h1">فحص للياقة</div>
-          <div class="h2">مستشفى ريسبكت</div>
-        </div>
-      </div>
-      <div class="actions">
-        <select id="insuranceType" class="insurance-select">
-          <option value="">بدون تأمين</option>
-          <option value="فضي">تأمين فضي</option>
-          <option value="ذهبي">تأمين ذهبي</option>
-          <option value="بلاتيني">تأمين بلاتيني</option>
-        </select>
-        <button id="doctorBtn" class="btn">إضافة الطبيب</button>
-        <button id="copyBtn" class="btn btnPrimary">حفظ للمحفظة</button>
-        <button id="copyMsgBtn" class="btn">نسخ الرسالة</button>
-      </div>
-    </header>
+<script>
+const $=id=>document.getElementById(id);
 
-    <section class="layout">
-      <div class="preview">
-        <div class="previewFrame"><canvas id="report" width="1414" height="2000"></canvas></div>
-      </div>
-      <aside class="panel">
-        <div class="panelTitle">البيانات الأساسية</div>
-        <div class="field"><label>الاسم</label><input id="name" type="text" placeholder="أدخل الاسم..."/></div>
-        <div class="field row2">
-          <div><label>رقم الفحص</label><input id="testNo" type="text" placeholder="300"/></div>
-          <div><label>الرقم الوطني</label><input id="nid" type="text" placeholder="5775"/></div>
-        </div>
-        <div class="divider"></div>
-        <div class="panelTitle">الفحوصات (اسحب للترتيب)</div>
-        <div id="testsList" class="testsList"></div>
-      </aside>
-    </section>
-  </main>
+const TESTS=[
+"ضغط الدم",
+"النظر",
+"السمع",
+"السكر",
+"اللياقة"
+];
 
-  <div id="doctorModal" class="modal" style="display:none">
-    <div class="modalBackdrop" id="doctorCancel"></div>
-    <div class="modalCard">
-       <div class="modalHead"><div class="modalTitle">إعدادات الطبيب</div></div>
-       <div class="modalBody">
-          <div class="field"><label>اسم الطبيب</label><input id="doctorNameM" type="text" value="د. سنمار بدر" /></div>
-       </div>
-       <div class="modalFoot">
-          <button id="doctorSave" class="btn btnPrimary">حفظ وإغلاق</button>
-       </div>
-    </div>
-  </div>
+let state={
+ name:"",
+ nid:"",
+ insurance:"none",
+ tests:[0,0,0,0,0]
+};
 
-  <script src="app.js"></script>
+/* إنشاء الفحوصات */
+const list=$("testsList");
+function render(){
+ list.innerHTML="";
+ TESTS.forEach((t,i)=>{
+  const d=document.createElement("div");
+  d.className="testItem";
+  d.draggable=true;
+  d.innerHTML=`${t}<input type=number min=0 max=100 value=${state.tests[i]||0}>`;
+
+  d.ondragstart=()=>d.classList.add("dragging");
+  d.ondragend=()=>d.classList.remove("dragging");
+
+  d.querySelector("input").oninput=e=>{
+    state.tests[i]=+e.target.value;
+  };
+
+  list.appendChild(d);
+ });
+}
+render();
+
+/* السحب */
+list.ondragover=e=>{
+ e.preventDefault();
+ const drag=document.querySelector(".dragging");
+ const after=[...list.children]
+  .find(el=>e.clientY<=el.offsetTop+el.offsetHeight/2);
+ if(after) list.insertBefore(drag,after);
+ else list.appendChild(drag);
+};
+
+/* المودال */
+$("insuranceBtn").onclick=()=>{
+ $("modal").style.display="flex";
+};
+
+function saveIns(){
+ state.insurance=$("insSel").value;
+ $("modal").style.display="none";
+}
+
+/* 🎯 نظام التأمين التلقائي */
+function autoInsurance(){
+ const avg=state.tests.reduce((a,b)=>a+b,0)/state.tests.length;
+
+ if(avg>=85) return "بلاتيني";
+ if(avg>=60) return "ذهبي";
+ if(avg>=30) return "فضي";
+ return "لا يوجد";
+}
+
+/* نسخ الرسالة */
+function copyMsg(){
+ state.name=$("name").value;
+ state.nid=$("nid").value;
+
+ let ins=state.insurance;
+
+ if(ins==="auto") ins=autoInsurance();
+ if(ins==="none") ins="";
+
+ let msg=
+"```\n"+
+"الاسم : "+state.name+"\n"+
+"الرقم الوطني : "+state.nid+"\n"+
+"نوع التقرير: فحص لياقه\n";
+
+ if(ins) msg+="نوع التأمين : "+ins+"\n";
+
+ msg+="```";
+
+ navigator.clipboard.writeText(msg);
+ alert("تم النسخ ✅");
+}
+
+/* 🚀 باتش نوت مرة واحدة */
+if(!localStorage.patch){
+ setTimeout(()=>{
+  alert(
+`🚀 PATCH NOTES
+
+✨ التأمين الصحي
+✨ نظام درجات تلقائي
+✨ سحب الفحوصات
+✨ أنيميشن سينمائي
+
+🔥 تجربة خورافية`
+  );
+  localStorage.patch=1;
+ },700);
+}
+</script>
+
 </body>
 </html>
