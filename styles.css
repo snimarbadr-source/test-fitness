@@ -99,7 +99,7 @@ canvas{width:100%; height:auto; display:block; border-radius:16px; background:tr
 .field label{font-size:12px; color:rgba(238,241,255,.78)}
 .field input, .field select{
   border:1px solid rgba(255,255,255,.14);
-  background:rgb(76, 0, 255,.12);
+  background:rgba(0,0,0,.12);
   color:var(--text);
   border-radius:14px;
   padding:10px 12px;
@@ -165,7 +165,7 @@ canvas{width:100%; height:auto; display:block; border-radius:16px; background:tr
 
 .dropZone{
   border:1px dashed rgba(255,255,255,.22);
-  background:rgb(153, 0, 255,.14);
+  background:rgba(0,0,0,.14);
   border-radius:18px;
   padding:18px 14px;
   text-align:center;
@@ -175,8 +175,8 @@ canvas{width:100%; height:auto; display:block; border-radius:16px; background:tr
 .dropZone:hover{background:rgba(0,0,0,.18)}
 .dropZone:focus{border-color:rgba(124,108,255,.8)}
 .dropTitle{font-weight:900}
-.dropSub{font-size:12px; color:rgb(0, 47, 255,.70); margin-top:6px}
-.dropMeta{font-size:12px; color:rgb(0, 47, 255,.76); margin-top:8px}
+.dropSub{font-size:12px; color:rgba(238,241,255,.70); margin-top:6px}
+.dropMeta{font-size:12px; color:rgba(238,241,255,.76); margin-top:8px}
 .extraRow{display:flex; gap:10px; align-items:center; margin:8px 0}
 .extraRow input{flex:1}
 
@@ -184,3 +184,77 @@ canvas{width:100%; height:auto; display:block; border-radius:16px; background:tr
 .rangeRow{display:flex; align-items:center; gap:12px}
 .rangeRow input[type=range]{flex:1}
 .rangeVal{min-width:56px; text-align:center; font-weight:900; color:rgba(238,241,255,.85)}
+
+/* Patch Notes */
+.patchModal{
+  position:fixed; inset:0; z-index:999;
+  display:grid; place-items:center;
+  background:rgba(5,7,15,.95);
+  backdrop-filter:blur(10px);
+  animation:fadeIn .5s ease;
+}
+.patchCard{
+  background:linear-gradient(135deg, rgba(20,20,35,0.9), rgba(10,10,20,0.95));
+  border:1px solid rgba(124,108,255,.3);
+  box-shadow:0 0 50px rgba(124,108,255,.2);
+  border-radius:30px;
+  padding:40px;
+  max-width:600px;
+  width:90%;
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+  animation:popIn .6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.patchCard::before{
+  content:""; position:absolute; inset:0;
+  background:radial-gradient(circle at 50% 0%, rgba(124,108,255,0.15), transparent 70%);
+  pointer-events:none;
+}
+.patchTitle{
+  font-size:32px; font-weight:900; margin-bottom:10px;
+  background:linear-gradient(90deg, #fff, #b38cff);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.patchSub{font-size:16px; color:#aeb7df; margin-bottom:30px;}
+.patchList{text-align:right; margin-bottom:30px; display:flex; flex-direction:column; gap:12px;}
+.patchItem{display:flex; align-items:center; gap:10px; color:#eef1ff; font-size:15px;}
+.patchItem span{
+  width:24px; height:24px; background:rgba(37,242,162,.2); border-radius:50%;
+  color:#25f2a2; display:grid; place-items:center; font-weight:bold; font-size:12px;
+}
+.patchBtn{
+  background:linear-gradient(90deg, #7c6cff, #b38cff);
+  color:#fff; border:none; padding:12px 30px;
+  font-size:16px; font-weight:bold; border-radius:12px;
+  cursor:pointer; box-shadow:0 10px 20px rgba(124,108,255,.3);
+  transition:transform .2s;
+}
+.patchBtn:hover{transform:scale(1.05);}
+
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes popIn{from{transform:scale(0.8);opacity:0}to{transform:scale(1);opacity:1}}
+
+/* Insurance Modal Buttons */
+.insGrid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;}
+.insBtn{
+  padding:20px; border-radius:16px; border:1px solid rgba(255,255,255,.1);
+  background:rgba(255,255,255,.05); color:#fff; cursor:pointer;
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+  transition:all .2s;
+}
+.insBtn:hover{background:rgba(255,255,255,.1); border-color:rgba(255,255,255,.3);}
+.insBtn.active{
+  background:rgba(124,108,255,.2); border-color:#7c6cff; box-shadow:0 0 15px rgba(124,108,255,.2);
+}
+.insIcon{font-size:24px;}
+.insLabel{font-weight:bold;}
+
+/* Reorder handles */
+.reorderBtn{
+  background:none; border:none; color:rgba(255,255,255,.3); cursor:grab;
+  padding:5px; font-size:18px; display:flex; align-items:center;
+}
+.reorderBtn:hover{color:#fff;}
+
