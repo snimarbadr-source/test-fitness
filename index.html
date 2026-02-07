@@ -24,29 +24,6 @@
     </div>
   </div>
 
-  <div id="patchModal" class="modal" style="display:none">
-    <div class="modalBackdrop"></div>
-    <div class="modalCard patchCard">
-      <div class="modalHead">
-        <div class="modalTitle">تحديثات جديدة خرافية 🚀</div>
-      </div>
-      <div class="modalBody">
-        <div class="patchItem">
-          <b>🛡️ نظام التأمين:</b> أضفنا فئات التأمين (فضي، ذهبي، بلاتيني) لتظهر في رسالة النسخ بشكل احترافي.
-        </div>
-        <div class="patchItem">
-          <b>🔄 ترتيب الفحوصات:</b> يمكنك الآن سحب وتغيير ترتيب الفحوصات في القائمة كما تشاء!
-        </div>
-        <div class="patchItem">
-          <b>🎨 تحسينات بصرية:</b> واجهة أكثر سلاسة وتجربة مستخدم مذهلة.
-        </div>
-      </div>
-      <div class="modalFoot">
-        <button id="closePatch" class="btn btnPrimary" style="width:100%">استكشف الآن</button>
-      </div>
-    </div>
-  </div>
-
   <main class="shell">
     <header class="topbar">
       <div class="brand">
@@ -55,9 +32,10 @@
           <div class="h2">مستشفى ريسبكت</div>
         </div>
       </div>
+
       <div class="actions">
+        <button id="insuranceBtn" class="btn">تأمين صحي</button>
         <button id="doctorBtn" class="btn">إضافة الطبيب</button>
-        <button id="insuranceBtn" class="btn">التأمين الصحي</button>
         <button id="copyBtn" class="btn btnPrimary">حفظ للمحفظة</button>
         <button id="copyMsgBtn" class="btn">نسخ الرسالة</button>
       </div>
@@ -72,55 +50,101 @@
 
       <aside class="panel">
         <div class="panelTitle">البيانات</div>
+
         <div class="field">
           <label>الاسم</label>
           <input id="name" type="text" placeholder="اكتب الاسم..." autocomplete="off"/>
         </div>
+
         <div class="field row2">
+          <div>
+            <label>رقم الفحص</label>
+            <input id="testNo" type="text" placeholder="مثال: 300" autocomplete="off"/>
+          </div>
           <div>
             <label>الرقم الوطني</label>
             <input id="nid" type="text" placeholder="مثال: 6650" autocomplete="off"/>
           </div>
+        </div>
+
+        <div class="field">
+          <label>فئة التأمين</label>
+          <select id="insuranceType">
+            <option value="none">بدون تأمين</option>
+            <option value="فضي">تأمين فضي</option>
+            <option value="ذهبي">تأمين ذهبي</option>
+            <option value="بلاتيني">تأمين بلاتيني</option>
+          </select>
+        </div>
+
+        <div class="divider"></div>
+        <div class="panelTitle">الطبيب المعالج</div>
+        <button id="doctorPanelBtn" class="btn" type="button" style="width:100%; margin:10px 0 0">تعديل الطبيب</button>
+        <div class="field">
+          <label>اسم الطبيب الأساسي</label>
+          <input id="doctorName" type="text" placeholder="مثال: د. سنمار بدر" autocomplete="off"/>
+        </div>
+
+        <div id="doctorExtras" class="extras"></div>
+        <button id="addDoctorExtra" class="btn">+ إضافة طبيب</button>
+
+        <div class="field row2">
           <div>
-            <label>نوع التأمين</label>
-            <select id="insuranceType">
-              <option value="none">لا يوجد</option>
-              <option value="فضي">فضي</option>
-              <option value="ذهبي">ذهبي</option>
-              <option value="بلاتيني">بلاتيني</option>
+            <label>اسم تحت التوقيع</label>
+            <input id="doctorPrinted" type="text" placeholder="اختياري" autocomplete="off"/>
+          </div>
+          <div>
+            <label>توقيع الطبيب</label>
+            <select id="doctorSigMode">
+              <option value="none">بدون توقيع</option>
+              <option value="typed">توقيع نصّي</option>
+              <option value="upload">رفع صورة توقيع</option>
             </select>
           </div>
         </div>
 
+        <div class="field" id="doctorSigTypedWrap">
+          <label>نص التوقيع (Signature)</label>
+          <input id="doctorSigTyped" type="text" placeholder="مثال: Waleed" autocomplete="off"/>
+        </div>
+
+        <div class="field" id="doctorSigUploadWrap" style="display:none">
+          <label>صورة توقيع</label>
+          <input id="doctorSigUpload" type="file" accept="image/*" style="display:none"/>
+          <div id="doctorDrop" class="dropZone">
+            <div class="dropTitle">اسحب وأفلت صورة التوقيع هنا</div>
+          </div>
+          <div class="dropMeta" id="doctorDropMeta"></div>
+        </div>
+
         <div class="divider"></div>
-        <div class="panelTitle">الفحوصات (اسحب للترتيب)</div>
+        <div class="panelTitle">الفحوصات (اسحب للترتيب ☰)</div>
         <div id="testsList" class="testsList"></div>
-        
+
         <div class="divider"></div>
-        <div class="panelTitle">الطبيب المعالج</div>
-        <button id="doctorPanelBtn" class="btn" type="button" style="width:100%; margin:10px 0 0">تعديل الطبيب</button>
+        <div class="panelTitle">المسؤول</div>
+        <div class="fixedBox">
+          <div class="fixedRow"><span>توقيع المسؤول:</span><b>بخيت مبخوت</b></div>
+        </div>
       </aside>
     </section>
   </main>
 
-  <div id="doctorModal" class="modal" style="display:none">
-    <div id="doctorBackdrop" class="modalBackdrop"></div>
-    <div class="modalCard">
-      <div class="modalHead">
-        <div class="modalTitle">إعدادات الطبيب</div>
-        <button id="doctorClose" class="iconBtn">&times;</button>
-      </div>
+  <div id="patchModal" class="modal" style="display:none">
+    <div class="modalBackdrop"></div>
+    <div class="modalCard patchCard">
+      <div class="modalHead"><div class="modalTitle">تحديثات النظام 🚀</div></div>
       <div class="modalBody">
-        <div class="field">
-          <label>اسم الطبيب</label>
-          <input id="doctorNameM" type="text"/>
-        </div>
-        </div>
-      <div class="modalFoot">
-        <button id="doctorSave" class="btn btnPrimary">حفظ</button>
+        <div class="patchItem">⚡ **ترتيب الفحوصات:** يمكنك الآن سحب الفحوصات وترتيبها يدوياً.</div>
+        <div class="patchItem">🛡️ **نظام التأمين:** أضفنا فئات التأمين (فضي، ذهبي، بلاتيني) للرسالة.</div>
+        <div class="patchItem">🎨 **تحسينات مرئية:** تطوير واجهة الاستخدام لتكون أكثر سلاسة.</div>
       </div>
+      <div class="modalFoot"><button id="closePatch" class="btn btnPrimary" style="width:100%">ابدأ العمل</button></div>
     </div>
   </div>
+
+  <div id="doctorModal" class="modal" style="display:none">
+    </div>
 
   <script src="app.js"></script>
 </body>
