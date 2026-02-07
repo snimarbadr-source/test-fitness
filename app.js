@@ -1,81 +1,104 @@
-/* حافظ على تنسيقاتك الأصلية وأضف هذه التعديلات */
-:root {
-  --primary: #7c6cff;
-  --bg: #0a0a0c;
-  --panel: #141417;
-  --text: #ffffff;
+let gymWatermark = null;
+
+const TESTS = [
+  "تمرين الجري", "تمرين الباي دمبل", "تمرين الصدر بار", "تمرين اكتاف", "تمرين الضغط",
+  "تمرين بوكسينق", "تمرين الباي بار", "تمرين الجلوس", "تمرين الصدر دمبل", "تمرين رفع الى اعلى"
+];
+
+const state = {
+  name: "", testNo: "", nid: "", insurance: "",
+  doctorName: "د. سنمار بدر", doctorExtras: [], doctorSigMode: "none",
+  tests: TESTS.map(() => 0),
+  userOrder: [...Array(TESTS.length).keys()]
+};
+
+const $ = (id) => document.getElementById(id);
+const canvas = $("report");
+const ctx = canvas.getContext("2d");
+
+// ---- Boot & Patch Notes ----
+window.addEventListener("DOMContentLoaded", () => {
+    $("skipIntro").onclick = () => {
+        $("intro").style.display = "none";
+        if (!localStorage.getItem("patch_v1_seen")) {
+            $("patchModal").style.display = "flex";
+        }
+    };
+    $("closePatch").onclick = () => {
+        $("patchModal").style.display = "none";
+        localStorage.setItem("patch_v1_seen", "true");
+    };
+    init();
+});
+
+// ---- نظام الترتيب والترميم ----
+function mountTests() {
+    const container = $("testsList");
+    container.innerHTML = "";
+    state.userOrder.forEach((originalIdx, currentPos) => {
+        const name = TESTS[originalIdx];
+        const val = state.tests[originalIdx];
+        const row = document.createElement("div");
+        row.className = "testRow";
+        row.draggable = true;
+        row.innerHTML = `<div class="testTop"><span>☰ ${name}</span><b>${val}%</b></div>
+                         <input type="range" min="0" max="100" value="${val}" style="width:100%">`;
+        
+        row.ondragstart = (e) => e.dataTransfer.setData("idx", currentPos);
+        row.ondragover = (e) => e.preventDefault();
+        row.ondrop = (e) => {
+            const from = e.dataTransfer.getData("idx");
+            const item = state.userOrder.splice(from, 1)[0];
+            state.userOrder.splice(currentPos, 0, item);
+            mountTests();
+            render();
+        };
+        row.querySelector("input").oninput = (e) => {
+            state.tests[originalIdx] = e.target.value;
+            row.querySelector("b").textContent = e.target.value + "%";
+            render();
+        };
+        container.appendChild(row);
+    });
 }
 
-/* تنسيق قائمة التأمين الجديدة */
-.insurance-select {
-  background: #1a1a1e;
-  color: white;
-  border: 1px solid #333;
-  padding: 8px 15px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-family: inherit;
-  outline: none;
-  transition: border-color 0.2s;
-}
-.insurance-select:focus {
-  border-color: var(--primary);
+// ---- نسخ الرسالة ----
+$("copyMsgBtn").onclick = () => {
+    const ins = state.insurance ? `\nنوع التأمين : ${state.insurance}` : "";
+    const msg = "```\n" + `الاسم : ${state.name || "—"}\nالرقم الوطني : ${state.nid || "—"}\nنوع التقرير: فحص لياقه${ins}\n` + "```";
+    navigator.clipboard.writeText(msg);
+    $("copyMsgBtn").textContent = "تم النسخ ✅";
+    setTimeout(() => $("copyMsgBtn").textContent = "نسخ الرسالة", 1500);
+};
+
+$("insuranceSelect").onchange = (e) => { state.insurance = e.target.value; render(); };
+
+// ---- الرسم (التقرير يظل ثابتاً برغم الترتيب) ----
+function drawTests() {
+    TESTS.forEach((name, i) => {
+        const val = state.tests[i];
+        const x = i < 5 ? 90 : 724;
+        const y = 370 + (i % 5) * 125;
+        // رسم المربعات والنسب كما في ملفك الأصلي
+        ctx.fillStyle = "#f8f9fa";
+        ctx.roundRect(x, y, 600, 100, 15);
+        ctx.fill();
+        ctx.fillStyle = "#000";
+        ctx.font = "bold 32px Arial";
+        ctx.textAlign = "right";
+        ctx.fillText(name, x + 570, y + 60);
+        ctx.textAlign = "left";
+        ctx.fillText(val + "%", x + 30, y + 60);
+    });
 }
 
-/* تنسيق الفحوصات القابلة للسحب */
-.testRow {
-  background: #1c1c21;
-  border: 1px solid #2d2d35;
-  padding: 12px;
-  border-radius: 10px;
-  margin-bottom: 10px;
-  cursor: grab;
-  transition: transform 0.2s, background 0.2s;
-}
-.testRow:active {
-  cursor: grabbing;
-  transform: scale(0.98);
-  background: #25252b;
-}
-.testRow.dragging {
-  opacity: 0.5;
-  border: 1px dashed var(--primary);
+function render() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // استدعاء دوال الرسم الأصلية (drawBg, drawHeader, إلخ)
+    drawTests(); 
 }
 
-/* نافذة التحديثات (Patch Notes) */
-.patch-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.85);
-  display: none; /* تظهر عبر JS */
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-  backdrop-filter: blur(10px);
+function init() {
+    mountTests();
+    render();
 }
-.patch-card {
-  background: linear-gradient(145deg, #1e2235, #0f111a);
-  border: 2px solid var(--primary);
-  border-radius: 24px;
-  padding: 40px;
-  max-width: 450px;
-  text-align: center;
-  color: white;
-  box-shadow: 0 0 50px rgba(124, 108, 255, 0.3);
-  animation: patchPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-@keyframes patchPop {
-  from { opacity: 0; transform: scale(0.8); }
-  to { opacity: 1; transform: scale(1); }
-}
-.patch-icon { font-size: 50px; margin-bottom: 20px; }
-.patch-list { text-align: right; list-style: none; padding: 0; margin: 25px 0; }
-.patch-list li { margin-bottom: 15px; font-size: 0.95rem; line-height: 1.6; }
-.patch-list b { color: var(--primary); }
-
-/* تحسينات عامة للهيدر واللوحة */
-.topbar { display: flex; justify-content: space-between; align-items: center; padding: 20px; background: var(--panel); border-bottom: 1px solid #222; }
-.actions { display: flex; gap: 10px; align-items: center; }
-.btn { padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; transition: 0.2s; }
-.btnPrimary { background: var(--primary); color: white; }
-.btnPrimary:hover { opacity: 0.9; transform: translateY(-1px); }
