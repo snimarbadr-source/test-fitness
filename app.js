@@ -145,17 +145,18 @@ function makeTestRow(i, name, visualIdx){
   // Reorder buttons
   const orderDiv = document.createElement("div");
   orderDiv.style.display = "flex";
-  orderDiv.style.flexDirection = "column";
+  orderDiv.style.flexDirection = "row";
+  orderDiv.style.gap = "6px";
   
   const upBtn = document.createElement("button");
   upBtn.className = "reorderBtn";
-  upBtn.textContent = "▲";
+  upBtn.innerHTML = "▲";
   upBtn.onclick = () => moveTest(visualIdx, -1);
   if(visualIdx === 0) upBtn.style.visibility = "hidden";
 
   const downBtn = document.createElement("button");
   downBtn.className = "reorderBtn";
-  downBtn.textContent = "▼";
+  downBtn.innerHTML = "▼";
   downBtn.onclick = () => moveTest(visualIdx, 1);
   if(visualIdx === state.testsOrder.length - 1) downBtn.style.visibility = "hidden";
 
