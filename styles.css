@@ -53,6 +53,59 @@ body{
 .plate:first-child{left:0}
 .plate:last-child{right:0; animation-delay:.2s}
 @keyframes plate{to{transform:translateY(-2px)}}
+
+/* Advanced Barbell Animation */
+.barbell-anim {
+  position: relative;
+  width: 80px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.rod-anim {
+  width: 60px;
+  height: 6px;
+  background: linear-gradient(90deg, #7c6cff, #b38cff);
+  border-radius: 3px;
+  box-shadow: 0 0 10px rgba(124, 108, 255, 0.5);
+}
+.plate-anim {
+  position: absolute;
+  width: 12px;
+  height: 30px;
+  background: #eef1ff;
+  border-radius: 4px;
+  border: 2px solid #7c6cff;
+}
+.p1 { left: 0; animation: lift-left 1.5s ease-in-out infinite alternate; }
+.p2 { right: 0; animation: lift-right 1.5s ease-in-out infinite alternate; }
+
+@keyframes lift-left {
+  from { transform: translateY(0) rotate(0); }
+  to { transform: translateY(-15px) rotate(-10deg); }
+}
+@keyframes lift-right {
+  from { transform: translateY(0) rotate(0); }
+  to { transform: translateY(-15px) rotate(10deg); }
+}
+
+.pulse {
+  animation: text-pulse 2s ease-in-out infinite;
+}
+@keyframes text-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.8; }
+}
+
+.slide-up {
+  animation: slide-up-anim 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+@keyframes slide-up-anim {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
 .introTitle{font-size:44px; font-weight:900}
 .introSub{font-size:18px; color:var(--muted)}
 .introHint{font-size:13px; color:rgba(238,241,255,.72)}
@@ -253,7 +306,12 @@ canvas{width:100%; height:auto; display:block; border-radius:16px; background:tr
 
 /* Reorder handles */
 .reorderBtn{
-  background:none; border:none; color:rgba(255,255,255,.3); cursor:grab;
-  padding:5px; font-size:18px; display:flex; align-items:center;
+  background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); 
+  color:rgba(255,255,255,.5); cursor:pointer;
+  width:28px; height:28px; border-radius:8px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:12px; transition:all .2s;
 }
-.reorderBtn:hover{color:#fff;}
+.reorderBtn:hover{background:rgba(124,108,255,.2); color:#fff; border-color:#7c6cff;}
+.patchItem small{margin-right:auto; color:var(--green); font-weight:bold; background:rgba(37,242,162,.1); padding:2px 6px; border-radius:6px; font-size:10px;}
+
