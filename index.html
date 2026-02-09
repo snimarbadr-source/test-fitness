@@ -10,20 +10,19 @@
   <!-- Intro -->
   <div id="intro" class="intro" aria-hidden="false">
     <div class="introScene">
-      <div class="introRing"></div>
-      <div class="introGlow"></div>
+      <div class="introBg"></div>
+      <div class="scanner-container">
+        <div class="scanner-line"></div>
+        <div class="scanner-glow"></div>
+      </div>
       <div class="introCard">
-        <div class="introIcon" aria-hidden="true">
-          <div class="barbell-anim">
-            <span class="plate-anim p1"></span>
-            <span class="rod-anim"></span>
-            <span class="plate-anim p2"></span>
-          </div>
+        <div class="introIcon" aria-hidden="true" id="randomExerciseIcon"></div>
+        <div class="introTitle modern-text">فحص لياقة</div>
+        <div class="introSub modern-sub">مستشفى ريسبكت</div>
+        <div class="status-bar">
+          <div class="status-progress"></div>
         </div>
-        <div class="introTitle pulse">مستشفى ريسبكت</div>
-        <div class="introSub slide-up">فحص لياقة</div>
-        <div class="introHint"></div>
-        <button id="skipIntro" class="btn btnPrimary">تخطي</button>
+        <button id="skipIntro" class="btn btnPrimary skip-btn-anim">تخطى الانترو</button>
       </div>
     </div>
   </div>
@@ -235,16 +234,33 @@
   <!-- Patch Notes Modal -->
   <div id="patchNotesModal" class="patchModal" style="display:none" aria-hidden="true">
     <div class="patchCard">
-      <div class="patchTitle">تحديث جديد! 🚀</div>
-      <div class="patchSub">مستشفى ريسبكت - فحص لياقة</div>
+      <button id="closePatchNotesX" class="patchXBtn">✕</button>
+      <div class="patchTitle">تحديث أسطوري! 🔥</div>
+      <div class="patchSub">مستشفى ريسبكت - الإصدار المطور</div>
       <div class="patchList">
-        <div class="patchItem"><span>1</span> تم اضافة تامين صحي اختر فضي او ذهبي او بلاتيني <small>(جديد)</small></div>
-        <div class="patchItem"><span>2</span> عند اختيار يتم تحديد رسالة في زر نسخ الرسالة <small>(جديد)</small></div>
-        <div class="patchItem"><span>3</span> إمكانية إعادة ترتيب الفحوصات في القائمة <small>(جديد)</small></div>
-        <div class="patchItem"><span>4</span> تحسينات على الواجهة وسرعة الأداء</div>
-        <div class="patchItem"><span>5</span> واجهة انترو جديدة كلياً</div>
+        <div class="patchItem highlight-new">
+          <span>1</span> 
+          <div>
+            <strong>تأمين صحي ذكي</strong>
+            <p>اختر (فضي، ذهبي، بلاتيني) وسيتم دمجها تلقائياً في رسالة النسخ باحترافية.</p>
+          </div>
+        </div>
+        <div class="patchItem highlight-new">
+          <span>2</span> 
+          <div>
+            <strong>ترتيب الفحوصات الذكي</strong>
+            <p>استخدم الأسهم لتغيير ترتيب التمارين حسب رغبتك لجعل العمل أسرع وأكثر تنظيماً.</p>
+          </div>
+        </div>
+        <div class="patchItem">
+          <span>3</span> 
+          <div>
+            <strong>تجربة دخول سينمائية</strong>
+            <p>انميشن انترو جديد كلياً يجسد التطور والاحترافية.</p>
+          </div>
+        </div>
       </div>
-      <button id="closePatchNotes" class="patchBtn">رائع، لنبدأ!</button>
+      <button id="closePatchNotes" class="patchBtn">بدء التجربة الأسطورية</button>
     </div>
   </div>
 
