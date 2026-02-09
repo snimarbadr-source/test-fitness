@@ -87,10 +87,25 @@ const inputs = {
 window.addEventListener("DOMContentLoaded", () => {
   const intro = $("intro");
   const skipBtn = $("skipIntro");
+  
+  // Random exercise animation
+  const iconContainer = $("randomExerciseIcon");
+  if(iconContainer) {
+    const exercises = [
+      '<div class="barbell-anim"><span class="plate-anim p1"></span><span class="rod-anim"></span><span class="plate-anim p2"></span></div>',
+      '<div class="runner-anim"><div class="runner-body"></div><div class="runner-leg l1"></div><div class="runner-leg l2"></div></div>',
+      '<div class="pulse-heart"><div class="heart-shape"></div></div>'
+    ];
+    iconContainer.innerHTML = exercises[Math.floor(Math.random() * exercises.length)];
+  }
+
   function hideIntro(){
     if(!intro) return;
-    intro.style.display = "none";
-    intro.setAttribute("aria-hidden","true");
+    intro.classList.add("fade-out");
+    setTimeout(() => {
+        intro.style.display = "none";
+        intro.setAttribute("aria-hidden","true");
+    }, 800);
   }
   if(skipBtn) skipBtn.addEventListener("click", hideIntro);
   setTimeout(hideIntro, 4000);
@@ -1555,6 +1570,10 @@ if(inputs.patchNotesModal && !localStorage.getItem("seenPatchNotes_v2")){
     }, 1500);
 }
 inputs.closePatchNotes?.addEventListener("click", () => {
+    localStorage.setItem("seenPatchNotes_v2", "true");
+    inputs.patchNotesModal.style.display = "none";
+});
+$("closePatchNotesX")?.addEventListener("click", () => {
     localStorage.setItem("seenPatchNotes_v2", "true");
     inputs.patchNotesModal.style.display = "none";
 });
