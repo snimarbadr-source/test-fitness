@@ -7,34 +7,21 @@
   <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
-  <!-- Intro -->
-  <div id="intro" class="intro" aria-hidden="false">
-    <div class="introScene">
-      <div class="introBg"></div>
-      <div class="scanner-container">
-        <div class="scanner-line"></div>
-        <div class="scanner-glow"></div>
-      </div>
-      <div class="introCard">
-        <div class="introIcon" aria-hidden="true" id="randomExerciseIcon"></div>
-        <div class="introTitle modern-text">فحص لياقة</div>
-        <div class="introSub modern-sub">مستشفى ريسبكت</div>
-        <div class="status-bar">
-          <div class="status-progress"></div>
-        </div>
-        <button id="skipIntro" class="btn btnPrimary skip-btn-anim">تخطى الانترو</button>
-      </div>
-    </div>
-  </div>
+ <!-- ULTRA CINEMATIC INTRO -->
+<div id="intro" class="intro" aria-hidden="false">
+  <div class="medScan"></div>
+  <div class="heartbeat"></div>
 
-  <main class="shell">
-    <header class="topbar">
-      <div class="brand">
-        <div class="brandText">
-          <div class="h1">فحص للياقة</div>
-          <div class="h2">مستشفى ريسبكت</div>
-        </div>
-      </div>
+  <div class="introCenter">
+    <div class="scanLine"></div>
+
+    <div class="titleMain">مستشفى ريسبكت</div>
+    <div class="titleSub">فحص لياقة</div>
+
+    <button id="skipIntro" class="btn btnPrimary">تخطي</button>
+  </div>
+</div>
+
 
       <div class="actions">
         <button id="doctorBtn" class="btn">إضافة الطبيب</button>
