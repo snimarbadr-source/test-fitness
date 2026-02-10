@@ -1577,3 +1577,4 @@ $("closePatchNotesX")?.addEventListener("click", () => {
     localStorage.setItem("seenPatchNotes_v2", "true");
     inputs.patchNotesModal.style.display = "none";
 });
+
