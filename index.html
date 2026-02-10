@@ -7,25 +7,36 @@
   <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
- <!-- ULTRA CINEMATIC INTRO -->
-<div id="intro" class="intro" aria-hidden="false">
-  <div class="medScan"></div>
-  <div class="heartbeat"></div>
-
-  <div class="introCenter">
-    <div class="scanLine"></div>
-
-    <div class="titleMain">مستشفى ريسبكت</div>
-    <div class="titleSub">فحص لياقة</div>
-
-    <button id="skipIntro" class="btn btnPrimary">تخطي</button>
+  <!-- Intro -->
+  <div id="intro" class="intro" aria-hidden="false">
+    <div class="introScene">
+      <div class="introRing"></div>
+      <div class="introGlow"></div>
+      <div class="introCard">
+        <div class="introIcon" aria-hidden="true">
+          <div class="barbell">
+            <span class="plate"></span><span class="rod"></span><span class="plate"></span>
+          </div>
+        </div>
+        <div class="introTitle">فحص للياقة</div>
+        <div class="introSub">مستشفى ريسبكت</div>
+        <div class="introHint"></div>
+        <button id="skipIntro" class="btn btnPrimary">تخطي</button>
+      </div>
+    </div>
   </div>
-</div>
 
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brandText">
+          <div class="h1">فحص للياقة</div>
+          <div class="h2">مستشفى ريسبكت</div>
+        </div>
+      </div>
 
       <div class="actions">
         <button id="doctorBtn" class="btn">إضافة الطبيب</button>
-        <button id="insuranceBtn" class="btn">تأمين صحي</button>
         <button id="copyBtn" class="btn btnPrimary">حفظ للمحفظة</button>
         <button id="copyMsgBtn" class="btn">نسخ الرسالة</button>
 </div>
@@ -181,73 +192,6 @@
         <button id="doctorCancel" class="btn" type="button">إلغاء</button>
         <button id="doctorSave" class="btn btnPrimary" type="button">حفظ</button>
       </div>
-    </div>
-  </div>
-
-  <!-- Insurance Modal -->
-  <div id="insuranceModal" class="modal" style="display:none" aria-hidden="true">
-    <div class="modalBackdrop" id="insuranceBackdrop"></div>
-    <div class="modalCard" role="dialog" aria-modal="true" aria-labelledby="insModalTitle" style="max-width:500px">
-      <div class="modalHead">
-        <div id="insModalTitle" class="modalTitle">نوع التأمين الصحي</div>
-        <button id="insuranceClose" class="iconBtn" type="button" aria-label="إغلاق">✕</button>
-      </div>
-      <div class="modalBody">
-        <div class="insGrid">
-          <button class="insBtn" data-val="none">
-            <span class="insIcon">🚫</span>
-            <span class="insLabel">لا يوجد</span>
-          </button>
-          <button class="insBtn" data-val="silver">
-            <span class="insIcon">🥈</span>
-            <span class="insLabel">فضي</span>
-          </button>
-          <button class="insBtn" data-val="gold">
-            <span class="insIcon">🥇</span>
-            <span class="insLabel">ذهبي</span>
-          </button>
-          <button class="insBtn" data-val="platinum">
-            <span class="insIcon">💎</span>
-            <span class="insLabel">بلاتيني</span>
-          </button>
-        </div>
-      </div>
-      <div class="modalFoot">
-        <button id="insuranceCancel" class="btn" type="button">إغلاق</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Patch Notes Modal -->
-  <div id="patchNotesModal" class="patchModal" style="display:none" aria-hidden="true">
-    <div class="patchCard">
-      <button id="closePatchNotesX" class="patchXBtn">✕</button>
-      <div class="patchTitle">تحديث أسطوري! 🔥</div>
-      <div class="patchSub">مستشفى ريسبكت - الإصدار المطور</div>
-      <div class="patchList">
-        <div class="patchItem highlight-new">
-          <span>1</span> 
-          <div>
-            <strong>تأمين صحي ذكي</strong>
-            <p>اختر (فضي، ذهبي، بلاتيني) وسيتم دمجها تلقائياً في رسالة النسخ باحترافية.</p>
-          </div>
-        </div>
-        <div class="patchItem highlight-new">
-          <span>2</span> 
-          <div>
-            <strong>ترتيب الفحوصات الذكي</strong>
-            <p>استخدم الأسهم لتغيير ترتيب التمارين حسب رغبتك لجعل العمل أسرع وأكثر تنظيماً.</p>
-          </div>
-        </div>
-        <div class="patchItem">
-          <span>3</span> 
-          <div>
-            <strong>مهم</strong>
-            <p>لاتنسى بين تقرير وتقرير تتاكد من اختيارك في تامين الصحي للرسالة نسخ قبل الارسال في التقارير الطيبة </p>
-          </div>
-        </div>
-      </div>
-      <button id="closePatchNotes" class="patchBtn">فهمت</button>
     </div>
   </div>
 
