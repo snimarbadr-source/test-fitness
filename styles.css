@@ -7,34 +7,99 @@
   <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
-  <!-- Intro -->
-  <div id="intro" class="intro" aria-hidden="false">
-    <div class="introScene">
-      <div class="introBg"></div>
-      <div class="scanner-container">
-        <div class="scanner-line"></div>
-        <div class="scanner-glow"></div>
-      </div>
-      <div class="introCard">
-        <div class="introIcon" aria-hidden="true" id="randomExerciseIcon"></div>
-        <div class="introTitle modern-text">فحص لياقة</div>
-        <div class="introSub modern-sub">مستشفى ريسبكت</div>
-        <div class="status-bar">
-          <div class="status-progress"></div>
-        </div>
-        <button id="skipIntro" class="btn btnPrimary skip-btn-anim">تخطى الانترو</button>
-      </div>
-    </div>
-  </div>
+/* ===== ULTRA INTRO ===== */
 
-  <main class="shell">
-    <header class="topbar">
-      <div class="brand">
-        <div class="brandText">
-          <div class="h1">فحص للياقة</div>
-          <div class="h2">مستشفى ريسبكت</div>
-        </div>
-      </div>
+.intro{
+  position:fixed;
+  inset:0;
+  z-index:999;
+  background:#02050c;
+  overflow:hidden;
+  display:grid;
+  place-items:center;
+}
+
+/* خلفية مسح طبي */
+.medScan{
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(0,255,170,.15), transparent 60%),
+    repeating-linear-gradient(
+      0deg,
+      rgba(0,255,170,.05) 0px,
+      rgba(0,255,170,.05) 2px,
+      transparent 2px,
+      transparent 6px
+    );
+  animation:scanBG 4s linear infinite;
+}
+
+@keyframes scanBG{
+  from{transform:translateY(-40px)}
+  to{transform:translateY(40px)}
+}
+
+/* نبض */
+.heartbeat{
+  position:absolute;
+  width:200%;
+  height:2px;
+  background:#00ffa6;
+  top:50%;
+  left:-50%;
+  box-shadow:0 0 20px #00ffa6;
+  animation:heart 2s infinite linear;
+}
+
+@keyframes heart{
+  0%{transform:translateX(-100%)}
+  100%{transform:translateX(100%)}
+}
+
+.introCenter{
+  text-align:center;
+  position:relative;
+  z-index:2;
+}
+
+/* خط فحص يمر على النص */
+.scanLine{
+  position:absolute;
+  inset:0;
+  height:3px;
+  background:#00ffa6;
+  box-shadow:0 0 20px #00ffa6;
+  animation:scanText 2.5s infinite;
+}
+
+@keyframes scanText{
+  0%{top:0}
+  50%{top:100%}
+  100%{top:0}
+}
+
+.titleMain{
+  font-size:56px;
+  font-weight:900;
+  color:#00ffa6;
+  text-shadow:0 0 25px #00ffa6;
+  animation:glow 1.5s infinite alternate;
+}
+
+.titleSub{
+  font-size:26px;
+  margin-top:10px;
+  color:#eafff7;
+  letter-spacing:2px;
+  opacity:.9;
+}
+
+@keyframes glow{
+  from{filter:brightness(1)}
+  to{filter:brightness(1.5)}
+}
+
 
       <div class="actions">
         <button id="doctorBtn" class="btn">إضافة الطبيب</button>
