@@ -288,3 +288,4 @@ canvas{width:100%; height:auto; display:block; border-radius:16px; background:tr
 .rangeRow{display:flex; align-items:center; gap:12px}
 .rangeRow input[type=range]{flex:1}
 .rangeVal{min-width:56px; text-align:center; font-weight:900; color:rgba(238,241,255,.85)}
+
