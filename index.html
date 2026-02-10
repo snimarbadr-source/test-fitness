@@ -6,81 +6,34 @@
   <title>فحص للياقة — مستشفى ريسبكت</title>
   <link rel="stylesheet" href="styles.css"/>
 </head>
-
 <body>
-
-<!-- 🔥 ULTRA MEDICAL INTRO -->
-<div id="intro" class="intro" aria-hidden="false">
-
-  <div class="medBg"></div>
-  <div class="heartbeat"></div>
-
-  <div class="introCenter">
-    <h1 class="introTitle glitch" data-text="مستشفى ريسبكت">
-      مستشفى ريسبكت
-    </h1>
-
-    <div class="introSub">فحص لياقة</div>
-
-    <button id="skipIntro" class="btn btnPrimary">تخطي</button>
-  </div>
-
-</div>
-
-<main class="shell">
-
-<header class="topbar">
-  <div class="brand">
-    <div class="brandText">
-      <div class="h1">فحص للياقة</div>
-      <div class="h2">مستشفى ريسبكت</div>
+  <!-- Intro -->
+  <div id="intro" class="intro" aria-hidden="false">
+    <div class="introScene">
+      <div class="introRing"></div>
+      <div class="introGlow"></div>
+      <div class="introCard">
+        <div class="introIcon" aria-hidden="true">
+          <div class="barbell">
+            <span class="plate"></span><span class="rod"></span><span class="plate"></span>
+          </div>
+        </div>
+        <div class="introTitle">فحص للياقة</div>
+        <div class="introSub">مستشفى ريسبكت</div>
+        <div class="introHint"></div>
+        <button id="skipIntro" class="btn btnPrimary">تخطي</button>
+      </div>
     </div>
   </div>
 
-  <div class="actions">
-    <button id="doctorBtn" class="btn">إضافة الطبيب</button>
-    <button id="copyBtn" class="btn btnPrimary">حفظ للمحفظة</button>
-    <button id="copyMsgBtn" class="btn">نسخ الرسالة</button>
-  </div>
-</header>
-
-<section class="layout">
-
-<div class="preview">
-  <div class="previewFrame">
-    <canvas id="report" width="1414" height="2000"></canvas>
-  </div>
-</div>
-
-<aside class="panel">
-  <div class="panelTitle">البيانات</div>
-
-  <div class="field">
-    <label>الاسم</label>
-    <input id="name" type="text"/>
-  </div>
-
-  <div class="field row2">
-    <div>
-      <label>رقم الفحص</label>
-      <input id="testNo" type="text"/>
-    </div>
-    <div>
-      <label>الرقم الوطني</label>
-      <input id="nid" type="text"/>
-    </div>
-  </div>
-
-  <!-- باقي الملف كما هو بدون تغيير -->
-</aside>
-
-</section>
-</main>
-
-<script src="app.js"></script>
-</body>
-</html>
-
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brandText">
+          <div class="h1">فحص للياقة</div>
+          <div class="h2">مستشفى ريسبكت</div>
+        </div>
+      </div>
 
       <div class="actions">
         <button id="doctorBtn" class="btn">إضافة الطبيب</button>
