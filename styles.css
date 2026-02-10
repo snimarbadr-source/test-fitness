@@ -1,334 +1,186 @@
-<!doctype html>
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>فحص للياقة — مستشفى ريسبكت</title>
-  <link rel="stylesheet" href="styles.css"/>
-</head>
-<body>
-/* ===== ULTRA INTRO ===== */
-
-.intro{
-  position:fixed;
-  inset:0;
-  z-index:999;
-  background:#02050c;
-  overflow:hidden;
-  display:grid;
-  place-items:center;
+:root{
+  --bg1:#070b14; --bg2:#0a1020;
+  --text:#eef1ff; --muted:#aeb7df;
+  --violet:#7c6cff; --violet2:#b38cff; --green:#25f2a2;
+  --shadow:0 18px 40px rgba(0,0,0,.35);
 }
-
-/* خلفية مسح طبي */
-.medScan{
-  position:absolute;
-  inset:0;
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; color:var(--text);
+  font-family:system-ui, -apple-system, "Segoe UI", Tahoma, Arial;
   background:
-    radial-gradient(circle at 50% 50%, rgba(0,255,170,.15), transparent 60%),
-    repeating-linear-gradient(
-      0deg,
-      rgba(0,255,170,.05) 0px,
-      rgba(0,255,170,.05) 2px,
-      transparent 2px,
-      transparent 6px
-    );
-  animation:scanBG 4s linear infinite;
+    radial-gradient(900px 520px at 75% 20%, rgba(124,108,255,.22), transparent 60%),
+    radial-gradient(900px 520px at 20% 85%, rgba(37,242,162,.12), transparent 60%),
+    linear-gradient(180deg, var(--bg2), var(--bg1));
 }
-
-@keyframes scanBG{
-  from{transform:translateY(-40px)}
-  to{transform:translateY(40px)}
+/* Intro */
+.intro{position:fixed; inset:0; z-index:50; display:grid; place-items:center;
+  background:
+    radial-gradient(620px 360px at 50% 40%, rgba(124,108,255,.30), transparent 60%),
+    rgba(5,7,15,.86);
+  backdrop-filter:blur(8px);
 }
-
-/* نبض */
-.heartbeat{
-  position:absolute;
-  width:200%;
-  height:2px;
-  background:#00ffa6;
-  top:50%;
-  left:-50%;
-  box-shadow:0 0 20px #00ffa6;
-  animation:heart 2s infinite linear;
+.introScene{position:relative; width:min(720px, 92vw); height:min(420px, 76vh);}
+.introRing{
+  position:absolute; inset:0; border-radius:28px; filter:blur(18px);
+  background:conic-gradient(from 0deg, rgba(124,108,255,.0), rgba(124,108,255,.55), rgba(37,242,162,.20), rgba(124,108,255,.0));
+  animation:ring 3.2s linear infinite;
 }
-
-@keyframes heart{
-  0%{transform:translateX(-100%)}
-  100%{transform:translateX(100%)}
+@keyframes ring{to{transform:rotate(1turn)}}
+.introGlow{position:absolute; inset:18px; border-radius:24px;
+  background:linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:var(--shadow);
 }
+.introCard{position:absolute; inset:18px; border-radius:24px; padding:28px 24px;
+  display:grid; place-items:center; text-align:center; gap:10px;
+}
+.introIcon{width:92px; height:92px; border-radius:22px;
+  background:linear-gradient(135deg, rgba(124,108,255,.25), rgba(37,242,162,.10));
+  border:1px solid rgba(255,255,255,.14);
+  display:grid; place-items:center;
+}
+.barbell{position:relative; width:62px; height:16px}
+.rod{position:absolute; left:8px; right:8px; top:6px; height:4px; border-radius:99px;
+  background:linear-gradient(90deg, rgba(255,255,255,.22), rgba(255,255,255,.55), rgba(255,255,255,.22));
+}
+.plate{position:absolute; top:0; width:14px; height:16px; border-radius:6px;
+  background:linear-gradient(180deg, rgba(255,255,255,.20), rgba(255,255,255,.10));
+  border:1px solid rgba(255,255,255,.18);
+  animation:plate 1.2s ease-in-out infinite alternate;
+}
+.plate:first-child{left:0}
+.plate:last-child{right:0; animation-delay:.2s}
+@keyframes plate{to{transform:translateY(-2px)}}
+.introTitle{font-size:44px; font-weight:900}
+.introSub{font-size:18px; color:var(--muted)}
+.introHint{font-size:13px; color:rgba(238,241,255,.72)}
+.btn{
+  border:1px solid rgba(255,255,255,.16);
+  background:rgba(255,255,255,.06);
+  color:var(--text);
+  padding:10px 14px; border-radius:14px;
+  cursor:pointer;
+}
+.btn:hover{background:rgba(255,255,255,.10)}
+.btnPrimary{
+  background:linear-gradient(90deg, rgba(124,108,255,.95), rgba(179,140,255,.95));
+  border:0;
+}
+.btnPrimary:hover{filter:brightness(1.05)}
 
-.introCenter{
-  text-align:center;
+/* Layout */
+.shell{max-width:1200px; margin:0 auto; padding:22px 14px 28px}
+.topbar{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap}
+.brand .h1{font-size:28px; font-weight:900}
+.brand .h2{font-size:13px; color:var(--muted); margin-top:2px}
+.actions{display:flex; gap:10px; flex-wrap:wrap}
+.layout{display:grid; grid-template-columns:1.2fr .8fr; gap:16px; margin-top:14px}
+@media (max-width: 980px){ .layout{grid-template-columns:1fr} }
+
+.previewFrame{
+  background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:22px; padding:12px;
+  box-shadow:var(--shadow);
+}
+canvas{width:100%; height:auto; display:block; border-radius:16px; background:transparent}
+.tip{margin-top:10px; color:rgba(238,241,255,.70); font-size:12px}
+
+.panel{
+  background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03));
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:22px; padding:14px;
+  box-shadow:var(--shadow);
+}
+.panelTitle{font-weight:900; margin:6px 0 10px}
+.field{display:flex; flex-direction:column; gap:6px; margin-bottom:12px}
+.field label{font-size:12px; color:rgba(238,241,255,.78)}
+.field input, .field select{
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(0,0,0,.12);
+  color:var(--text);
+  border-radius:14px;
+  padding:10px 12px;
+  outline:none;
+}
+.field input:focus, .field select:focus{border-color:rgba(124,108,255,.7)}
+.row2{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+.divider{height:1px; background:rgba(255,255,255,.10); margin:14px 0}
+
+.testsList{display:flex; flex-direction:column; gap:10px}
+.testRow{
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(0,0,0,.10);
+  border-radius:16px;
+  padding:10px 10px 12px;
+}
+.testTop{display:flex; align-items:center; justify-content:space-between; gap:10px}
+.testName{font-weight:800; font-size:13px}
+.testPct{color:rgba(238,241,255,.78); font-size:18px; font-weight:900}
+.testCtl{display:grid; grid-template-columns:1fr auto; gap:10px; align-items:center; margin-top:8px}
+.testCtl input[type="range"]{width:100%}
+.testBtn{padding:8px 10px; border-radius:14px}
+
+.fixedBox{
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(0,0,0,.10);
+  border-radius:16px; padding:10px 12px;
+}
+.fixedRow{display:flex; justify-content:space-between; gap:10px; font-size:13px}
+.muted{color:rgba(238,241,255,.70); font-size:12px; margin-top:4px}
+
+/* Doctor extras */
+.extras{display:flex; flex-direction:column; gap:8px; margin-bottom:10px}
+.extraRow{display:flex; gap:8px}
+.extraRow input{flex:1}
+.extraRow button{padding:10px 12px; border-radius:14px}
+
+
+/* Modal */
+.modal{position:fixed; inset:0; z-index:60; display:grid; place-items:center;}
+.modalBackdrop{position:absolute; inset:0; background:rgba(5,7,15,.72); backdrop-filter:blur(6px);}
+.modalCard{
   position:relative;
-  z-index:2;
+  width:min(720px, 92vw);
+  max-height:min(86vh, 820px);
+  overflow:auto;
+  border-radius:22px;
+  background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04));
+  border:1px solid rgba(255,255,255,.16);
+  box-shadow:var(--shadow);
 }
-
-/* خط فحص يمر على النص */
-.scanLine{
-  position:absolute;
-  inset:0;
-  height:3px;
-  background:#00ffa6;
-  box-shadow:0 0 20px #00ffa6;
-  animation:scanText 2.5s infinite;
+.modalHead{display:flex; align-items:center; justify-content:space-between; padding:14px 14px 10px}
+.modalTitle{font-weight:900; font-size:18px}
+.iconBtn{
+  width:42px; height:42px; border-radius:14px;
+  border:1px solid rgba(255,255,255,.16);
+  background:rgba(255,255,255,.06);
+  color:var(--text); cursor:pointer;
 }
+.iconBtn:hover{background:rgba(255,255,255,.10)}
+.modalBody{padding:8px 14px 2px}
+.modalFoot{display:flex; gap:10px; justify-content:flex-end; padding:12px 14px 14px}
 
-@keyframes scanText{
-  0%{top:0}
-  50%{top:100%}
-  100%{top:0}
+.dropZone{
+  border:1px dashed rgba(255,255,255,.22);
+  background:rgba(0,0,0,.14);
+  border-radius:18px;
+  padding:18px 14px;
+  text-align:center;
+  cursor:pointer;
+  outline:none;
 }
-
-.titleMain{
-  font-size:56px;
-  font-weight:900;
-  color:#00ffa6;
-  text-shadow:0 0 25px #00ffa6;
-  animation:glow 1.5s infinite alternate;
-}
-
-.titleSub{
-  font-size:26px;
-  margin-top:10px;
-  color:#eafff7;
-  letter-spacing:2px;
-  opacity:.9;
-}
-
-@keyframes glow{
-  from{filter:brightness(1)}
-  to{filter:brightness(1.5)}
-}
+.dropZone:hover{background:rgba(0,0,0,.18)}
+.dropZone:focus{border-color:rgba(124,108,255,.8)}
+.dropTitle{font-weight:900}
+.dropSub{font-size:12px; color:rgba(238,241,255,.70); margin-top:6px}
+.dropMeta{font-size:12px; color:rgba(238,241,255,.76); margin-top:8px}
+.extraRow{display:flex; gap:10px; align-items:center; margin:8px 0}
+.extraRow input{flex:1}
 
 
-      <div class="actions">
-        <button id="doctorBtn" class="btn">إضافة الطبيب</button>
-        <button id="insuranceBtn" class="btn">تأمين صحي</button>
-        <button id="copyBtn" class="btn btnPrimary">حفظ للمحفظة</button>
-        <button id="copyMsgBtn" class="btn">نسخ الرسالة</button>
-</div>
-    </header>
-
-    <section class="layout">
-      <div class="preview">
-        <div class="previewFrame">
-          <canvas id="report" width="1414" height="2000"></canvas>
-        </div>
-</div>
-
-      <aside class="panel">
-        <div class="panelTitle">البيانات</div>
-
-        <div class="field">
-          <label>الاسم</label>
-          <input id="name" type="text" placeholder="اكتب الاسم..." autocomplete="off"/>
-        </div>
-
-        <div class="field row2">
-          <div>
-            <label>رقم الفحص</label>
-            <input id="testNo" type="text" placeholder="مثال: 300" autocomplete="off"/>
-          </div>
-          <div>
-            <label>الرقم الوطني</label>
-            <input id="nid" type="text" placeholder="مثال: 6650" autocomplete="off"/>
-          </div>
-        </div>
-
-        <div class="divider"></div>
-
-        <div class="panelTitle">الطبيب المعالج</div>
-        <button id="doctorPanelBtn" class="btn" type="button" style="width:100%; margin:10px 0 0">تعديل الطبيب</button>
-        <div class="field">
-          <label>اسم الطبيب الأساسي</label>
-          <input id="doctorName" type="text" placeholder="مثال: د. سنمار بدر" autocomplete="off"/>
-        </div>
-
-        <div class="field">
-          <label>إضافة أسماء تحت الطبيب (حد أقصى 3)</label>
-          <div id="doctorExtras" class="extras"></div>
-          <button id="addDoctorExtra" class="btn">+ إضافة طبيب</button>
-        </div>
-
-        <div class="field row2">
-          <div>
-            <label>اسم تحت التوقيع</label>
-            <input id="doctorPrinted" type="text" placeholder="اختياري" autocomplete="off"/>
-          </div>
-          <div>
-            <label>توقيع الطبيب</label>
-            <select id="doctorSigMode">
-              <option value="none">بدون توقيع</option>
-              <option value="typed">توقيع نصّي</option>
-              <option value="upload">رفع صورة توقيع</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="field" id="doctorSigTypedWrap">
-          <label>نص التوقيع (Signature)</label>
-          <input id="doctorSigTyped" type="text" placeholder="مثال: Waleed" autocomplete="off"/>
-        </div>
-
-        <div class="field" id="doctorSigUploadWrap" style="display:none">
-          <label>صورة توقيع (سحب وإفلات أو اختيار)</label>
-          <input id="doctorSigUpload" type="file" accept="image/*" style="display:none"/>
-          <div id="doctorDrop" class="dropZone" tabindex="0" role="button" aria-label="سحب وإفلات صورة التوقيع أو اضغط للاختيار">
-            <div class="dropTitle">اسحب وأفلت صورة التوقيع هنا</div>
-            <div class="dropSub">أو اضغط للاختيار من جهازك</div>
-          </div>
-          <div class="dropMeta" id="doctorDropMeta"></div>
-        </div>
-        <div class="divider"></div>
-
-        <div class="panelTitle">الفحوصات</div>
-        <div id="testsList" class="testsList"></div>
-
-        <div class="divider"></div>
-
-        <div class="panelTitle">المسؤول</div>
-        <div class="fixedBox">
-          <div class="fixedRow"><span>توقيع المسؤول:</span><b>بخيت مبخوت</b></div>
-          <div class="fixedRow muted">ثابت (لا يتغير)</div>
-        </div>
-      </aside>
-    </section>
-  </main>
-
-
-  <!-- Doctor Modal -->
-  <div id="doctorModal" class="modal" style="display:none" aria-hidden="true">
-    <div class="modalBackdrop" id="doctorBackdrop"></div>
-    <div class="modalCard" role="dialog" aria-modal="true" aria-labelledby="doctorModalTitle">
-      <div class="modalHead">
-        <div id="doctorModalTitle" class="modalTitle">إعدادات الطبيب المعالج</div>
-        <button id="doctorClose" class="iconBtn" type="button" aria-label="إغلاق">✕</button>
-      </div>
-
-      <div class="modalBody">
-        <div class="field">
-          <label>الطبيب المعالج (رئيسي)</label>
-          <input id="doctorNameM" type="text" placeholder="مثال: د. سنمار بدر" autocomplete="off"/>
-        </div>
-
-        <div class="field">
-          <label>إضافة أسماء تحت الطبيب (حد أقصى 3)</label>
-          <div id="doctorExtrasM" class="extras"></div>
-          <button id="addDoctorExtraM" class="btn" type="button">+ إضافة طبيب</button>
-        </div>
-
-        <div class="field row2">
-          <div>
-            <label>اسم مطبوع تحت التوقيع</label>
-            <input id="doctorPrintedM" type="text" placeholder="اختياري" autocomplete="off"/>
-          </div>
-          <div>
-            <label>طريقة التوقيع</label>
-            <select id="doctorSigModeM">
-              <option value="none">بدون توقيع</option>
-              <option value="typed">توقيع نصّي</option>
-              <option value="upload">صورة توقيع (جهازك)</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="field" id="doctorSigTypedWrapM" style="display:none">
-          <label>نص التوقيع</label>
-          <input id="doctorSigTypedM" type="text" placeholder="مثال: Waleed" autocomplete="off"/>
-        </div>
-
-        <div class="field" id="doctorSigUploadWrapM" style="display:none">
-          <label>صورة التوقيع (سحب وإفلات أو اختيار)</label>
-          <input id="doctorSigUploadM" type="file" accept="image/*" style="display:none"/>
-          <div id="doctorDropM" class="dropZone" tabindex="0" role="button" aria-label="سحب وإفلات صورة التوقيع أو اضغط للاختيار">
-            <div class="dropTitle">اسحب وأفلت صورة التوقيع هنا</div>
-            <div class="dropSub">أو اضغط للاختيار من جهازك</div>
-          </div>
-          <div class="dropMeta" id="doctorDropMetaM"></div>
-          <div class="field" id="doctorSigScaleWrapM" style="display:none">
-            <label>حجم التوقيع</label>
-            <div class="rangeRow">
-              <input id="doctorSigScaleM" type="range" min="70" max="140" step="5" value="100"/>
-              <div id="doctorSigScaleValM" class="rangeVal">100%</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="modalFoot">
-        <button id="doctorCancel" class="btn" type="button">إلغاء</button>
-        <button id="doctorSave" class="btn btnPrimary" type="button">حفظ</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Insurance Modal -->
-  <div id="insuranceModal" class="modal" style="display:none" aria-hidden="true">
-    <div class="modalBackdrop" id="insuranceBackdrop"></div>
-    <div class="modalCard" role="dialog" aria-modal="true" aria-labelledby="insModalTitle" style="max-width:500px">
-      <div class="modalHead">
-        <div id="insModalTitle" class="modalTitle">نوع التأمين الصحي</div>
-        <button id="insuranceClose" class="iconBtn" type="button" aria-label="إغلاق">✕</button>
-      </div>
-      <div class="modalBody">
-        <div class="insGrid">
-          <button class="insBtn" data-val="none">
-            <span class="insIcon">🚫</span>
-            <span class="insLabel">لا يوجد</span>
-          </button>
-          <button class="insBtn" data-val="silver">
-            <span class="insIcon">🥈</span>
-            <span class="insLabel">فضي</span>
-          </button>
-          <button class="insBtn" data-val="gold">
-            <span class="insIcon">🥇</span>
-            <span class="insLabel">ذهبي</span>
-          </button>
-          <button class="insBtn" data-val="platinum">
-            <span class="insIcon">💎</span>
-            <span class="insLabel">بلاتيني</span>
-          </button>
-        </div>
-      </div>
-      <div class="modalFoot">
-        <button id="insuranceCancel" class="btn" type="button">إغلاق</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Patch Notes Modal -->
-  <div id="patchNotesModal" class="patchModal" style="display:none" aria-hidden="true">
-    <div class="patchCard">
-      <button id="closePatchNotesX" class="patchXBtn">✕</button>
-      <div class="patchTitle">تحديث أسطوري! 🔥</div>
-      <div class="patchSub">مستشفى ريسبكت - الإصدار المطور</div>
-      <div class="patchList">
-        <div class="patchItem highlight-new">
-          <span>1</span> 
-          <div>
-            <strong>تأمين صحي ذكي</strong>
-            <p>اختر (فضي، ذهبي، بلاتيني) وسيتم دمجها تلقائياً في رسالة النسخ باحترافية.</p>
-          </div>
-        </div>
-        <div class="patchItem highlight-new">
-          <span>2</span> 
-          <div>
-            <strong>ترتيب الفحوصات الذكي</strong>
-            <p>استخدم الأسهم لتغيير ترتيب التمارين حسب رغبتك لجعل العمل أسرع وأكثر تنظيماً.</p>
-          </div>
-        </div>
-        <div class="patchItem">
-          <span>3</span> 
-          <div>
-            <strong>تجربة دخول سينمائية</strong>
-            <p>انميشن انترو جديد كلياً يجسد التطور والاحترافية.</p>
-          </div>
-        </div>
-      </div>
-      <button id="closePatchNotes" class="patchBtn">بدء التجربة الأسطورية</button>
-    </div>
-  </div>
-
-  <script src="app.js"></script>
-</body>
-</html>
+.rangeRow{display:flex; align-items:center; gap:12px}
+.rangeRow input[type=range]{flex:1}
+.rangeVal{min-width:56px; text-align:center; font-weight:900; color:rgba(238,241,255,.85)}
